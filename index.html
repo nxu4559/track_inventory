@@ -479,9 +479,6 @@ create policy "public" on activity for all using (true) with check (true);</div>
         <div class="db-dot" id="db-dot"></div>
         <div class="db-label" id="db-label">Connected</div>
       </div>
-      <button onclick="disconnectDB()" style="margin-top:8px;width:100%;padding:7px;background:none;border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--font-body)">
-        🔌 Change Database
-      </button>
     </div>
   </aside>
 
@@ -733,6 +730,11 @@ const DEMO_ITEMS = [
   {id:'5', name:'Flex Hose 200mm', sku:'FLEX200-15', barcode:'', unit:'pcs', thresh:5, sold:false, locations:[{loc:'M08-A1',shelf:'Shelf 4',qty:2}]},
 ];
 
+// ── PASTE YOUR SUPABASE CREDENTIALS HERE ──────────────
+const SUPABASE_URL = 'https://urcrbbceqbfyexbzkwki.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_98hkwbN_O3SoohjEOjGzmw_J-P4-z-a';
+// ──────────────────────────────────────────────────────
+
 async function connectDB() {
   const url = document.getElementById('cfg-url').value.trim();
   const key = document.getElementById('cfg-key').value.trim();
@@ -742,20 +744,11 @@ async function connectDB() {
     sbClient = window.supabase.createClient(url, key);
     const { error } = await sbClient.from('items').select('id').limit(1);
     if (error) throw error;
-    localStorage.setItem('wh_url', url);
-    localStorage.setItem('wh_key', key);
     startApp();
   } catch(e) {
     alert('Connection failed: ' + (e.message || e));
     document.getElementById('connect-btn').textContent = 'Connect & Start';
   }
-}
-
-function disconnectDB() {
-  if (!confirm('This will clear your saved credentials and reload. Continue?')) return;
-  localStorage.removeItem('wh_url');
-  localStorage.removeItem('wh_key');
-  location.reload();
 }
 
 function useDemoMode() {
@@ -1493,19 +1486,19 @@ document.querySelectorAll('.modal-overlay').forEach(o=>{
 });
 
 // ══════════════════════════════════════════════════════
-// INIT — auto-reconnect if saved credentials
+// INIT — connect automatically using hardcoded credentials
 // ══════════════════════════════════════════════════════
-(async ()=>{
-  const url = localStorage.getItem('wh_url');
-  const key = localStorage.getItem('wh_key');
-  if (url && key) {
-    // Show a simple "reconnecting" state instead of the full config form
-    document.getElementById('config-banner').classList.add('visible');
+(async () => {
+  const url = SUPABASE_URL;
+  const key = SUPABASE_KEY;
+
+  // If credentials are hardcoded, skip setup screen entirely
+  if (url && url !== 'YOUR_SUPABASE_URL') {
     document.getElementById('config-banner').innerHTML = `
       <div style="text-align:center;color:var(--text)">
-        <div style="font-family:var(--font-head);font-size:32px;font-weight:800;margin-bottom:12px">WARE<span style="color:var(--accent)">HOUSE</span></div>
+        <div style="font-family:var(--font-head);font-size:32px;font-weight:800;margin-bottom:16px">WARE<span style="color:var(--accent)">HOUSE</span></div>
         <div style="display:flex;align-items:center;justify-content:center;gap:10px;color:var(--muted);font-size:14px">
-          <span class="loader"></span> Connecting to database…
+          <span class="loader"></span> Loading inventory…
         </div>
       </div>`;
     try {
@@ -1514,12 +1507,15 @@ document.querySelectorAll('.modal-overlay').forEach(o=>{
       if (error) throw error;
       startApp();
     } catch(e) {
-      // Credentials expired or invalid — show config form with fields pre-filled
-      document.getElementById('config-banner').innerHTML = ''; // reset
-      location.reload(); // reload to show fresh config
+      document.getElementById('config-banner').innerHTML = `
+        <div style="text-align:center;color:var(--text);padding:20px">
+          <div style="font-size:32px;margin-bottom:12px">⚠️</div>
+          <div style="font-size:16px;font-weight:700;margin-bottom:8px">Database connection failed</div>
+          <div style="font-size:13px;color:var(--muted)">${e.message||e}</div>
+        </div>`;
     }
   }
-  // else: config banner already visible by default, user fills in credentials
+  // else: credentials not set yet, show setup screen (for developer first-time setup)
 })();
 </script>
 </body>
