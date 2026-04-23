@@ -9,27 +9,27 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --bg: #0F1117;
-  --surface: #181C27;
-  --surface2: #1E2335;
-  --border: #2A3045;
-  --border2: #333D55;
-  --text: #EEF0F6;
-  --muted: #7A84A0;
-  --muted2: #4A5270;
-  --accent: #4F8EF7;
-  --accent2: #3B73DC;
-  --green: #22C55E;
-  --green-bg: rgba(34,197,94,0.1);
-  --red: #F05252;
-  --red-bg: rgba(240,82,82,0.1);
-  --orange: #F59E0B;
-  --orange-bg: rgba(245,158,11,0.1);
-  --blue-bg: rgba(79,142,247,0.1);
+  --bg: #F4F6FA;
+  --surface: #FFFFFF;
+  --surface2: #F0F2F7;
+  --border: #E2E6EF;
+  --border2: #D0D6E4;
+  --text: #1A1F2E;
+  --muted: #6B7490;
+  --muted2: #9BA3BA;
+  --accent: #2563EB;
+  --accent2: #1D4ED8;
+  --green: #16A34A;
+  --green-bg: rgba(22,163,74,0.08);
+  --red: #DC2626;
+  --red-bg: rgba(220,38,38,0.08);
+  --orange: #D97706;
+  --orange-bg: rgba(217,119,6,0.08);
+  --blue-bg: rgba(37,99,235,0.08);
   --radius: 12px;
   --radius-sm: 8px;
-  --shadow: 0 2px 8px rgba(0,0,0,0.3);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+  --shadow: 0 1px 4px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
   --sidebar-w: 240px;
   --font-head: 'Syne', sans-serif;
   --font-body: 'DM Sans', sans-serif;
@@ -46,7 +46,7 @@ input, button, textarea, select { font-family: inherit; }
 /* ─── CONFIG BANNER ─── */
 #config-banner {
   display: none;
-  background: linear-gradient(135deg, #1a2040, #0F1117);
+  background: linear-gradient(135deg, #EEF2FF, #E8EDFB);
   border-bottom: 1px solid var(--border);
   padding: 0;
   min-height: 100vh;
@@ -172,7 +172,7 @@ table { width: 100%; border-collapse: collapse; }
 th { padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; border-bottom: 1px solid var(--border); white-space: nowrap; background: var(--surface2); }
 td { padding: 13px 16px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
 tr:last-child td { border-bottom: none; }
-tr:hover td { background: rgba(255,255,255,0.02); }
+tr:hover td { background: rgba(37,99,235,0.03); }
 .td-name { font-weight: 600; max-width: 260px; }
 .td-name-sub { font-size: 11px; color: var(--muted); margin-top: 2px; font-family: var(--font-mono); }
 .td-mono { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
@@ -194,7 +194,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 .loc-chip { background: var(--surface2); border: 1px solid var(--border2); border-radius: 6px; padding: 2px 8px; font-size: 11px; font-family: var(--font-mono); color: var(--muted); white-space: nowrap; }
 
 /* ─── MODAL ─── */
-.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 500; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,20,40,0.45); z-index: 500; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
 .modal-overlay.open { display: flex; }
 .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
 .modal-title { font-family: var(--font-head); font-size: 20px; font-weight: 700; margin-bottom: 20px; }
@@ -232,7 +232,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 .found-sub { font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
 
 .scan-box { border: 1.5px dashed var(--border2); border-radius: var(--radius); padding: 24px; text-align: center; cursor: pointer; transition: all 0.15s; margin-bottom: 12px; }
-.scan-box:hover { border-color: var(--accent); background: var(--blue-bg); }
+.scan-box:hover { border-color: var(--accent); background: rgba(37,99,235,0.05); }
 .scan-box.scanning { border-color: var(--accent); border-style: solid; padding: 0; overflow: hidden; }
 .scan-box-icon { font-size: 28px; margin-bottom: 8px; }
 .scan-box-label { font-size: 14px; color: var(--muted); }
@@ -304,7 +304,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 .grid-cell:hover { transform: scale(1.05); box-shadow: var(--shadow); }
 .grid-cell.has-stock { background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.3); }
 .grid-cell.low-stock { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3); }
-.grid-cell.empty { background: var(--surface2); }
+.grid-cell.empty { background: var(--surface2); border-color: var(--border); }
 .grid-cell.selected { border-color: var(--accent); }
 .cell-loc { font-size: 9px; font-weight: 700; font-family: var(--font-mono); color: var(--muted); }
 .cell-qty { font-size: 14px; font-weight: 800; color: var(--text); }
@@ -635,9 +635,33 @@ create policy "public" on activity for all using (true) with check (true);</div>
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-additem')">✕</button>
     <div class="modal-title">Add New Item</div>
+
+    <!-- Barcode scan to auto-fill -->
+    <div class="scan-box" id="scan-box-additem" onclick="startScanner('additem')" style="margin-bottom:16px">
+      <div class="scan-box-icon">📷</div>
+      <div class="scan-box-label">Scan barcode to auto-fill product code</div>
+      <div class="scan-box-sub">Or fill in manually below</div>
+    </div>
+    <div id="additem-scanner-wrap" style="display:none;margin-bottom:12px">
+      <div class="scanner-live-wrap"><div id="additem-reader"></div></div>
+      <button class="btn secondary" style="margin-top:8px;width:auto;padding:7px 14px;font-size:13px" onclick="stopScanner('additem')">Cancel</button>
+    </div>
+
     <div class="form-row"><label class="form-label">Product Name *</label><input class="form-input" id="ai-name" placeholder="e.g. ABS Offset Drain White"/></div>
     <div class="form-row"><label class="form-label">Product Code / SKU *</label><input class="form-input mono" id="ai-sku" placeholder="e.g. OSB6040Q-20W"/></div>
-    <div class="form-row"><label class="form-label">Barcode Number</label><input class="form-input mono" id="ai-barcode" placeholder="e.g. 10002839"/></div>
+    <div class="form-row">
+      <label class="form-label">Barcode Number</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input class="form-input mono" id="ai-barcode" placeholder="e.g. 10002839" style="flex:1"/>
+        <button class="btn secondary" style="width:auto;padding:9px 12px;flex-shrink:0" onclick="startScanner('additem-barcode')" title="Scan barcode">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
+        </button>
+      </div>
+      <div id="additem-barcode-scanner-wrap" style="display:none;margin-top:8px">
+        <div class="scanner-live-wrap"><div id="additem-barcode-reader"></div></div>
+        <button class="btn secondary" style="margin-top:8px;width:auto;padding:7px 14px;font-size:13px" onclick="stopScanner('additem-barcode')">Cancel</button>
+      </div>
+    </div>
     <div class="form-grid">
       <div class="form-row"><label class="form-label">Unit</label><input class="form-input" id="ai-unit" placeholder="pcs / box / kg…"/></div>
       <div class="form-row"><label class="form-label">Low Stock Alert At</label><input class="form-input" id="ai-thresh" type="number" placeholder="5" min="0"/></div>
@@ -731,8 +755,8 @@ const DEMO_ITEMS = [
 ];
 
 // ── PASTE YOUR SUPABASE CREDENTIALS HERE ──────────────
-const SUPABASE_URL = 'https://urcrbbceqbfyexbzkwki.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_98hkwbN_O3SoohjEOjGzmw_J-P4-z-a';
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
 // ──────────────────────────────────────────────────────
 
 async function connectDB() {
@@ -1436,6 +1460,27 @@ function handleScan(scannerId, code) {
     const item=findItem(code);
     if (item) { flowState.item=item; flowState.step=2; renderMove(); }
     else { closeModal('modal-move'); openQuickAdd(code, 'move'); }
+  } else if (scannerId==='additem') {
+    // Full scan in add item modal — detect if numeric (barcode) or alphanumeric (SKU)
+    const isNumeric = /^\d+$/.test(code);
+    if (isNumeric) {
+      document.getElementById('ai-barcode').value = code;
+      // Try to find existing item by barcode
+      const existing = findItem(code);
+      if (existing) {
+        showToast('Already exists: ' + existing.sku, 'error');
+      } else {
+        showToast('Barcode filled: ' + code, 'success');
+      }
+    } else {
+      document.getElementById('ai-sku').value = code;
+      showToast('SKU filled: ' + code, 'success');
+    }
+    document.getElementById('ai-name').focus();
+  } else if (scannerId==='additem-barcode') {
+    // Scan just for the barcode field
+    document.getElementById('ai-barcode').value = code;
+    showToast('Barcode: ' + code, 'success');
   }
 }
 
@@ -1489,13 +1534,13 @@ document.querySelectorAll('.modal-overlay').forEach(o=>{
 // INIT — connect automatically using hardcoded credentials
 // ══════════════════════════════════════════════════════
 (async () => {
-  const url = SUPABASE_URL;
-  const key = SUPABASE_KEY;
+  const url = 'https://urcrbbceqbfyexbzkwki.supabase.co';
+  const key = 'sb_publishable_98hkwbN_O3SoohjEOjGzmw_J-P4-z-a';
 
   // If credentials are hardcoded, skip setup screen entirely
   if (url && url !== 'YOUR_SUPABASE_URL') {
     document.getElementById('config-banner').innerHTML = `
-      <div style="text-align:center;color:var(--text)">
+      <div style="text-align:center;color:#1A1F2E">
         <div style="font-family:var(--font-head);font-size:32px;font-weight:800;margin-bottom:16px">WARE<span style="color:var(--accent)">HOUSE</span></div>
         <div style="display:flex;align-items:center;justify-content:center;gap:10px;color:var(--muted);font-size:14px">
           <span class="loader"></span> Loading inventory…
