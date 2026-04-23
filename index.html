@@ -479,6 +479,9 @@ create policy "public" on activity for all using (true) with check (true);</div>
         <div class="db-dot" id="db-dot"></div>
         <div class="db-label" id="db-label">Connected</div>
       </div>
+      <button onclick="disconnectDB()" style="margin-top:8px;width:100%;padding:7px;background:none;border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--font-body)">
+        🔌 Change Database
+      </button>
     </div>
   </aside>
 
@@ -666,6 +669,40 @@ create policy "public" on activity for all using (true) with check (true);</div>
   <div class="modal"><div id="detail-content"></div></div>
 </div>
 
+<!-- Quick Add from Barcode -->
+<div class="modal-overlay" id="modal-quickadd">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-quickadd')">✕</button>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+      <div style="font-size:28px">📦</div>
+      <div>
+        <div class="modal-title" style="margin-bottom:2px">New Item Found</div>
+        <div style="font-size:13px;color:var(--muted)">This barcode isn't in your inventory yet. Fill in the details to add it.</div>
+      </div>
+    </div>
+    <div style="background:var(--blue-bg);border:1px solid rgba(79,142,247,0.25);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:20px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:18px">🔍</span>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">Scanned / Entered</div>
+        <div id="qa-scanned-val" style="font-family:var(--font-mono);font-size:14px;font-weight:600"></div>
+      </div>
+    </div>
+    <div class="form-row"><label class="form-label">Product Name *</label><input class="form-input" id="qa-name" placeholder="e.g. ABS Offset Drain White"/></div>
+    <div class="form-row"><label class="form-label">Product Code / SKU *</label><input class="form-input mono" id="qa-sku" placeholder="e.g. OSB6040Q-20W"/></div>
+    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--muted)">
+      💡 The scanned value is pre-filled as barcode. If it's actually the SKU, move it to the SKU field above.
+    </div>
+    <div class="form-grid">
+      <div class="form-row"><label class="form-label">Unit</label><input class="form-input" id="qa-unit" placeholder="pcs / box…"/></div>
+      <div class="form-row"><label class="form-label">Low Stock Alert At</label><input class="form-input" id="qa-thresh" type="number" placeholder="5" min="0"/></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn primary" onclick="saveQuickAdd()">Add Item & Continue</button>
+      <button class="btn secondary" onclick="closeModal('modal-quickadd')">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -712,6 +749,13 @@ async function connectDB() {
     alert('Connection failed: ' + (e.message || e));
     document.getElementById('connect-btn').textContent = 'Connect & Start';
   }
+}
+
+function disconnectDB() {
+  if (!confirm('This will clear your saved credentials and reload. Continue?')) return;
+  localStorage.removeItem('wh_url');
+  localStorage.removeItem('wh_key');
+  location.reload();
 }
 
 function useDemoMode() {
@@ -1109,7 +1153,7 @@ function renderPutaway() {
 function paLookup() {
   const val = document.getElementById('pa-manual').value.trim();
   const item = findItem(val);
-  if (!item) { showToast('Item not found: "'+val+'"','error'); return; }
+  if (!item) { openQuickAdd(val, 'putaway'); return; }
   flowState.item=item; flowState.step=2; renderPutaway();
 }
 function paSectionSet() {
@@ -1177,7 +1221,7 @@ function renderSell() {
 function sellLookup() {
   const val=document.getElementById('sell-manual').value.trim();
   const item=findItem(val);
-  if (!item) { showToast('Item not found','error'); return; }
+  if (!item) { openQuickAdd(val, 'sell'); return; }
   flowState.item=item; flowState.step=2; renderSell();
 }
 function sellSelectLoc(loc) { flowState.location=loc; renderSell(); }
@@ -1234,7 +1278,7 @@ function renderMove() {
 function moveLookup() {
   const val=document.getElementById('move-manual').value.trim();
   const item=findItem(val);
-  if (!item) { showToast('Item not found','error'); return; }
+  if (!item) { openQuickAdd(val, 'move'); return; }
   flowState.item=item; flowState.step=2; renderMove();
 }
 function moveFrom(loc) { flowState.location=loc; renderMove(); }
@@ -1277,7 +1321,59 @@ function renderSuccess(type) {
   </div>`;
 }
 
-// ── Shared ──
+// ── QUICK ADD FROM BARCODE ──
+let quickAddReturnFlow = null;
+
+function openQuickAdd(scannedVal, returnToFlow) {
+  quickAddReturnFlow = returnToFlow;
+  document.getElementById('qa-scanned-val').textContent = scannedVal;
+  // Pre-fill: if it looks like a number it's probably a barcode, else treat as SKU
+  const isNumeric = /^\d+$/.test(scannedVal);
+  if (isNumeric) {
+    document.getElementById('qa-sku').value = '';
+    // barcode field will be set in saveQuickAdd
+  } else {
+    document.getElementById('qa-sku').value = scannedVal;
+  }
+  document.getElementById('qa-name').value = '';
+  document.getElementById('qa-unit').value = 'pcs';
+  document.getElementById('qa-thresh').value = '5';
+  openModal('modal-quickadd');
+  setTimeout(() => document.getElementById('qa-name').focus(), 100);
+}
+
+async function saveQuickAdd() {
+  const scannedVal = document.getElementById('qa-scanned-val').textContent.trim();
+  const name   = document.getElementById('qa-name').value.trim();
+  const sku    = document.getElementById('qa-sku').value.trim();
+  const unit   = document.getElementById('qa-unit').value.trim() || 'pcs';
+  const thresh = parseInt(document.getElementById('qa-thresh').value) || 5;
+
+  if (!name) { showToast('Product name is required', 'error'); return; }
+  if (!sku)  { showToast('Product code / SKU is required', 'error'); return; }
+  if (items.find(i=>i.sku.toLowerCase()===sku.toLowerCase())) { showToast('SKU already exists','error'); return; }
+
+  // scannedVal goes to barcode if it's different from SKU
+  const barcode = scannedVal !== sku ? scannedVal : '';
+  const item = {id:uid(), name, sku, barcode, unit, thresh, sold:false, locations:[]};
+  items.unshift(item);
+  await dbSaveItem(item);
+  renderAll();
+  closeModal('modal-quickadd');
+  showToast('"'+name+'" added!', 'success');
+
+  // Resume the flow that triggered the quick add
+  if (quickAddReturnFlow) {
+    flowState.item = item;
+    flowState.step = 2;
+    if (quickAddReturnFlow === 'putaway') { openModal('modal-putaway'); renderPutaway(); }
+    if (quickAddReturnFlow === 'sell')    { openModal('modal-sell');    renderSell(); }
+    if (quickAddReturnFlow === 'move')    { openModal('modal-move');    renderMove(); }
+    quickAddReturnFlow = null;
+  }
+}
+
+// ── Find Item ──
 function findItem(val) {
   if (!val) return null;
   const q = val.toLowerCase().trim();
@@ -1336,17 +1432,17 @@ function handleScan(scannerId, code) {
   if (scannerId==='putaway') {
     const item=findItem(code);
     if (item) { flowState.item=item; flowState.step=2; renderPutaway(); }
-    else showToast('Not found: '+code,'error');
+    else { closeModal('modal-putaway'); openQuickAdd(code, 'putaway'); }
   } else if (scannerId==='pasec') {
     flowState.section=code.toUpperCase(); flowState.step=3; renderPutaway();
   } else if (scannerId==='sell') {
     const item=findItem(code);
     if (item) { flowState.item=item; flowState.step=2; renderSell(); }
-    else showToast('Not found: '+code,'error');
+    else { closeModal('modal-sell'); openQuickAdd(code, 'sell'); }
   } else if (scannerId==='move') {
     const item=findItem(code);
     if (item) { flowState.item=item; flowState.step=2; renderMove(); }
-    else showToast('Not found: '+code,'error');
+    else { closeModal('modal-move'); openQuickAdd(code, 'move'); }
   }
 }
 
@@ -1400,18 +1496,30 @@ document.querySelectorAll('.modal-overlay').forEach(o=>{
 // INIT — auto-reconnect if saved credentials
 // ══════════════════════════════════════════════════════
 (async ()=>{
-  const url=localStorage.getItem('wh_url');
-  const key=localStorage.getItem('wh_key');
-  if (url&&key) {
-    document.getElementById('cfg-url').value=url;
-    document.getElementById('cfg-key').value=key;
-    supabase=window.supabase.createClient(url,key);
+  const url = localStorage.getItem('wh_url');
+  const key = localStorage.getItem('wh_key');
+  if (url && key) {
+    // Show a simple "reconnecting" state instead of the full config form
+    document.getElementById('config-banner').classList.add('visible');
+    document.getElementById('config-banner').innerHTML = `
+      <div style="text-align:center;color:var(--text)">
+        <div style="font-family:var(--font-head);font-size:32px;font-weight:800;margin-bottom:12px">WARE<span style="color:var(--accent)">HOUSE</span></div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:10px;color:var(--muted);font-size:14px">
+          <span class="loader"></span> Connecting to database…
+        </div>
+      </div>`;
     try {
-      const {error}=await sbClient.from('items').select('id').limit(1);
+      sbClient = window.supabase.createClient(url, key);
+      const { error } = await sbClient.from('items').select('id').limit(1);
       if (error) throw error;
       startApp();
-    } catch(e) { /* show config */ }
+    } catch(e) {
+      // Credentials expired or invalid — show config form with fields pre-filled
+      document.getElementById('config-banner').innerHTML = ''; // reset
+      location.reload(); // reload to show fresh config
+    }
   }
+  // else: config banner already visible by default, user fills in credentials
 })();
 </script>
 </body>
