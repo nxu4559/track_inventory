@@ -757,8 +757,8 @@ const DEMO_ITEMS = [
 ];
 
 // ── PASTE YOUR SUPABASE CREDENTIALS HERE ──────────────
-const SUPABASE_URL = 'https://urcrbbceqbfyexbzkwki.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_98hkwbN_O3SoohjEOjGzmw_J-P4-z-a';
+const SUPABASE_URL = '%%SUPABASE_URL%%';
+const SUPABASE_KEY = '%%SUPABASE_KEY%%';
 // ──────────────────────────────────────────────────────
 
 async function connectDB() {
@@ -1247,73 +1247,133 @@ function renderFlow(type) {
 
 // ── PUT AWAY ──
 function renderAddstock() {
-  const s = flowState;
-  const steps = 4;
-  const dots = Array.from({length:steps},(_,i)=>`<div class="step-item ${i<s.step-1?'done':i===s.step-1?'active':''}"></div>`).join('');
-  const c = document.getElementById('addstock-content');
-  c.innerHTML = '';
-
-  if (s.step===5) { c.innerHTML = renderSuccess('addstock'); return; }
-
-  let html = `<button class="modal-close" onclick="closeModal('modal-addstock')">✕</button><div class="step-bar">${dots}</div>`;
-
-  if (s.step===1) {
-    html += `<div class="step-label">Step 1 of 4</div><div class="step-title">Scan Item Barcode</div>
-    <div class="scan-box" id="scan-box-addstock" onclick="startScanner('addstock')">
-      <div class="scan-box-icon">📷</div><div class="scan-box-label">Tap to open camera</div><div class="scan-box-sub">Works on iPhone, Android, desktop</div>
-    </div>
-    <div id="addstock-scanner-wrap" style="display:none;margin-bottom:12px"><div class="scanner-live-wrap"><div id="addstock-reader"></div></div><button class="btn secondary" style="margin-top:8px;width:auto;padding:7px 14px;font-size:13px" onclick="stopScanner('addstock')">Cancel</button></div>
-    <div class="or-row">or</div>
-    <div class="form-row"><label class="form-label">Type SKU / Barcode</label>
-    <div style="display:flex;gap:8px"><input class="form-input mono" id="pa-manual" placeholder="e.g. OSB6040Q-20W or 10002839" onkeydown="if(event.key==='Enter')paLookup()"/><button class="btn primary" style="width:auto" onclick="paLookup()">Find</button></div></div>`;
-  } else if (s.step===2) {
-    html += `<div class="step-label">Step 2 of 4</div><div class="step-title">Select Location</div>
-    <div class="found-box"><div class="found-label">✓ Item Found</div><div class="found-name">${s.item.name}</div><div class="found-sub">${s.item.sku} · Stock: ${totalQty(s.item)} ${s.item.unit}</div></div>
-    <div class="form-row"><label class="form-label">1. Select Shelf</label>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:4px" id="shelf-picker">
-      ${renderShelfPicker(s.section)}
-    </div></div>
-    ${s.section ? `<div class="form-row"><label class="form-label">2. Select Bay</label>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
-      ${renderBayPicker(s.section, s.shelf)}
-    </div></div>` : ''}
-    <button class="btn primary full" style="margin-top:8px" onclick="paStep3()" ${(!s.section||!s.shelf)?'disabled':''}>Next →</button>`;
-  } else if (s.step===3) {
-    html += `<div class="step-label">Step 3 of 4</div><div class="step-title">Enter Quantity</div>`;
-  } else if (s.step===4) {
-    html += `<div class="step-label">Step 3 of 3</div><div class="step-title">Enter Quantity</div>
-    <div class="summary-block">
-      <div class="summary-row"><span class="sum-label">Item</span><span class="sum-val blue">${s.item.sku}</span></div>
-      <div class="summary-row"><span class="sum-label">Location</span><span class="sum-val">${s.section} · ${s.shelf}</span></div>
-    </div>
-    <div class="form-row"><label class="form-label">Quantity to Add</label>
-    <div class="qty-row"><button class="qty-btn-lg" onclick="adjQty(-1)">−</button><input class="qty-input" id="flow-qty" type="number" value="${s.qty}" min="1" oninput="flowState.qty=parseInt(this.value)||1"/><button class="qty-btn-lg" onclick="adjQty(1)">+</button></div></div>
-    <div class="form-row"><label class="form-label">Notes (optional)</label><textarea class="notes-area" id="flow-notes" placeholder="e.g. new stock, batch...">${s.notes}</textarea></div>
-    <button class="btn success full" onclick="saveAddstock()">✓ Save Add Stock</button>`;
+  var s = flowState;
+  var c = document.getElementById('addstock-content');
+  var steps = 4;
+  var dots = '';
+  for (var i = 0; i < steps; i++) {
+    var cls = i < s.step - 1 ? 'done' : i === s.step - 1 ? 'active' : '';
+    dots += '<div class="step-item ' + cls + '"></div>';
   }
+  var html = '<button class="modal-close" onclick="closeModal(\'modal-addstock\')">✕</button>';
+  html += '<div class="step-bar">' + dots + '</div>';
+
+  if (s.step === 5) { c.innerHTML = renderSuccess('addstock'); return; }
+
+  if (s.step === 1) {
+    // STEP 1: Scan or find item
+    html += '<div class="step-label">Step 1 of 4</div>';
+    html += '<div class="step-title">Find Item</div>';
+    html += '<div class="scan-box" id="scan-box-addstock" onclick="startScanner(\'addstock\')">';
+    html += '<div class="scan-box-icon">📷</div>';
+    html += '<div class="scan-box-label">Tap to scan barcode</div>';
+    html += '</div>';
+    html += '<div id="addstock-scanner-wrap" style="display:none;margin-bottom:12px">';
+    html += '<div class="scanner-live-wrap"><div id="addstock-reader"></div></div>';
+    html += '<button class="btn secondary" style="margin-top:8px;width:auto;padding:7px 14px;font-size:13px" onclick="stopScanner(\'addstock\')">Cancel</button>';
+    html += '</div>';
+    html += '<div class="or-row">or</div>';
+    html += '<div class="form-row"><label class="form-label">Type SKU / Barcode</label>';
+    html += '<div style="display:flex;gap:8px">';
+    html += '<input class="form-input mono" id="pa-manual" placeholder="e.g. OSB6040Q-20W" onkeydown="if(event.key===\'Enter\')paLookup()"/>';
+    html += '<button class="btn primary" style="width:auto" onclick="paLookup()">Find</button>';
+    html += '</div></div>';
+
+  } else if (s.step === 2) {
+    // STEP 2: Select shelf (M08A1 ~ D4)
+    html += '<div class="found-box">';
+    html += '<div class="found-label">✓ Item Found</div>';
+    html += '<div class="found-name">' + s.item.name + '</div>';
+    html += '<div class="found-sub">' + s.item.sku + ' · Stock: ' + totalQty(s.item) + ' ' + s.item.unit + '</div>';
+    html += '</div>';
+    html += '<div class="step-label">Step 2 of 4</div>';
+    html += '<div class="step-title">Select Shelf Unit</div>';
+    html += '<div style="font-size:12px;color:var(--muted);margin-bottom:10px">Choose which shelf unit (M08A1–D4) the item goes into</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">';
+    html += renderShelfPicker(s.section, 'paPickShelf', 'paPickBay');
+    html += '</div>';
+    if (s.section) {
+      html += '<button class="btn primary full" style="margin-top:12px" onclick="paGoToBay()">Next →</button>';
+    }
+
+  } else if (s.step === 3) {
+    // STEP 3: Select bay (#01, #02 etc)
+    html += '<div class="found-box">';
+    html += '<div class="found-label">✓ Shelf: ' + s.section + '</div>';
+    html += '<div class="found-name">' + s.item.name + '</div>';
+    html += '<div class="found-sub">' + s.item.sku + '</div>';
+    html += '</div>';
+    html += '<div class="step-label">Step 3 of 4</div>';
+    html += '<div class="step-title">Select Bay</div>';
+    html += '<div style="font-size:12px;color:var(--muted);margin-bottom:10px">Choose the bay slot on shelf ' + s.section + '</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">';
+    html += renderBayPicker(s.section, s.shelf, 'paPickBay');
+    html += '</div>';
+    html += '<div style="display:flex;gap:8px;margin-top:12px">';
+    html += '<button class="btn secondary" style="flex:1" onclick="flowState.step=2;renderAddstock()">← Back</button>';
+    if (s.shelf) {
+      html += '<button class="btn primary" style="flex:2" onclick="paGoToQty()">Next →</button>';
+    }
+    html += '</div>';
+
+  } else if (s.step === 4) {
+    // STEP 4: Enter quantity
+    var locCode = 'M08' + s.section + s.shelf;
+    html += '<div class="step-label">Step 4 of 4</div>';
+    html += '<div class="step-title">Enter Quantity</div>';
+    html += '<div class="summary-block">';
+    html += '<div class="summary-row"><span class="sum-label">Item</span><span class="sum-val blue">' + s.item.sku + '</span></div>';
+    html += '<div class="summary-row"><span class="sum-label">Shelf</span><span class="sum-val">' + s.section + '</span></div>';
+    html += '<div class="summary-row"><span class="sum-label">Bay</span><span class="sum-val">' + s.shelf + '</span></div>';
+    html += '<div class="summary-row"><span class="sum-label">Location code</span><span class="sum-val" style="font-family:var(--font-mono)">' + locCode + '</span></div>';
+    html += '</div>';
+    html += '<div class="form-row"><label class="form-label">Quantity to Add</label>';
+    html += '<div class="qty-row">';
+    html += '<button class="qty-btn-lg" onclick="adjQty(-1)">−</button>';
+    html += '<input class="qty-input" id="flow-qty" type="number" value="' + s.qty + '" min="1" oninput="flowState.qty=parseInt(this.value)||1"/>';
+    html += '<button class="qty-btn-lg" onclick="adjQty(1)">+</button>';
+    html += '</div></div>';
+    html += '<div class="form-row"><label class="form-label">Notes (optional)</label>';
+    html += '<textarea class="notes-area" id="flow-notes" placeholder="e.g. new stock, batch...">' + s.notes + '</textarea>';
+    html += '</div>';
+    html += '<div style="display:flex;gap:8px">';
+    html += '<button class="btn secondary" style="flex:1" onclick="flowState.step=3;renderAddstock()">← Back</button>';
+    html += '<button class="btn success" style="flex:2" onclick="saveAddstock()">✓ Save Add Stock</button>';
+    html += '</div>';
+  }
+
   c.innerHTML = html;
 }
 
+
 function paLookup() {
-  const val = document.getElementById('pa-manual').value.trim();
-  const item = findItem(val);
+  var val = document.getElementById('pa-manual').value.trim();
+  var item = findItem(val);
   if (!item) { openQuickAdd(val, 'addstock'); return; }
-  flowState.item=item; flowState.step=2; renderAddstock();
+  flowState.item = item;
+  flowState.step = 2;
+  renderAddstock();
 }
 function paPickShelf(shelf) {
   flowState.section = shelf;
-  flowState.shelf = null; // reset bay when shelf changes
+  flowState.shelf = null;
+  renderAddstock();
+}
+function paGoToBay() {
+  if (!flowState.section) return;
+  flowState.step = 3;
   renderAddstock();
 }
 function paPickBay(bay) {
   flowState.shelf = bay;
   renderAddstock();
 }
-function paStep3() {
-  if (!flowState.section || !flowState.shelf) return;
+function paGoToQty() {
+  if (!flowState.shelf) return;
   flowState.step = 4;
   renderAddstock();
 }
+function paStep3() {} // legacy no-op
 function paSectionSet() {} // legacy no-op
 function paShelfSelect(n) {} // legacy no-op
 
