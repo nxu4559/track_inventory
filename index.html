@@ -1768,7 +1768,7 @@ document.querySelectorAll('.modal-overlay').forEach(o=>{
 
   try {
     showLoading();
-    // Fetch credentials from Vercel serverless function
+    // Fetch the credentials from Vercel serverless function
     const res = await fetch('/api/config');
     if (!res.ok) throw new Error('Could not load config (/api/config returned ' + res.status + ')');
     const cfg = await res.json();
