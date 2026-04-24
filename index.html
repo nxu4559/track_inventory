@@ -756,11 +756,6 @@ const DEMO_ITEMS = [
   {id:'5', name:'Flex Hose 200mm', sku:'FLEX200-15', barcode:'', unit:'pcs', thresh:5, sold:false, locations:[{loc:'M08-A1',shelf:'Shelf 4',qty:2}]},
 ];
 
-// ── PASTE YOUR SUPABASE CREDENTIALS HERE ──────────────
-const SUPABASE_URL = '%%SUPABASE_URL%%';
-const SUPABASE_KEY = '%%SUPABASE_KEY%%';
-// ──────────────────────────────────────────────────────
-
 async function connectDB() {
   const url = document.getElementById('cfg-url').value.trim();
   const key = document.getElementById('cfg-key').value.trim();
@@ -1752,36 +1747,45 @@ document.querySelectorAll('.modal-overlay').forEach(o=>{
 });
 
 // ══════════════════════════════════════════════════════
-// INIT — connect automatically using hardcoded credentials
+// INIT — fetch credentials from Vercel environment variables
 // ══════════════════════════════════════════════════════
 (async () => {
-  const url = SUPABASE_URL;
-  const key = SUPABASE_KEY;
+  function showLoading() {
+    document.getElementById('config-banner').innerHTML =
+      '<div style="text-align:center;color:#1A1F2E">' +
+      '<div style="font-family:var(--font-head);font-size:32px;font-weight:800;margin-bottom:16px">WARE<span style="color:#2563EB">HOUSE</span></div>' +
+      '<div style="display:flex;align-items:center;justify-content:center;gap:10px;color:#6B7490;font-size:14px">' +
+      '<span class="loader"></span> Loading inventory…</div></div>';
+  }
 
-  // If credentials are hardcoded, skip setup screen entirely
-  if (url && url !== 'YOUR_SUPABASE_URL') {
-    document.getElementById('config-banner').innerHTML = `
-      <div style="text-align:center;color:#1A1F2E">
-        <div style="font-family:var(--font-head);font-size:32px;font-weight:800;margin-bottom:16px">WARE<span style="color:var(--accent)">HOUSE</span></div>
-        <div style="display:flex;align-items:center;justify-content:center;gap:10px;color:var(--muted);font-size:14px">
-          <span class="loader"></span> Loading inventory…
-        </div>
-      </div>`;
-    try {
-      sbClient = window.supabase.createClient(url, key);
-      const { error } = await sbClient.from('items').select('id').limit(1);
-      if (error) throw error;
-      startApp();
-    } catch(e) {
-      document.getElementById('config-banner').innerHTML = `
-        <div style="text-align:center;color:var(--text);padding:20px">
-          <div style="font-size:32px;margin-bottom:12px">⚠️</div>
-          <div style="font-size:16px;font-weight:700;margin-bottom:8px">Database connection failed</div>
-          <div style="font-size:13px;color:var(--muted)">${e.message||e}</div>
-        </div>`;
+  function showError(msg) {
+    document.getElementById('config-banner').innerHTML =
+      '<div style="text-align:center;color:#1A1F2E;padding:20px">' +
+      '<div style="font-size:32px;margin-bottom:12px">⚠️</div>' +
+      '<div style="font-size:16px;font-weight:700;margin-bottom:8px">Connection failed</div>' +
+      '<div style="font-size:13px;color:#6B7490">' + msg + '</div></div>';
+  }
+
+  try {
+    showLoading();
+    // Fetch credentials from Vercel serverless function
+    const res = await fetch('/api/config');
+    if (!res.ok) throw new Error('Could not load config (/api/config returned ' + res.status + ')');
+    const cfg = await res.json();
+    if (!cfg.url || !cfg.key) throw new Error('Environment variables not set in Vercel');
+    sbClient = window.supabase.createClient(cfg.url, cfg.key);
+    const { error } = await sbClient.from('items').select('id').limit(1);
+    if (error) throw error;
+    startApp();
+  } catch(e) {
+    // If /api/config doesn't exist (local dev), fall back to manual setup screen
+    if (e.message && e.message.includes('404')) {
+      document.getElementById('config-banner').classList.add('visible');
+      document.getElementById('config-banner').innerHTML = document.getElementById('config-banner').innerHTML;
+    } else {
+      showError(e.message || String(e));
     }
   }
-  // else: credentials not set yet, show setup screen (for developer first-time setup)
 })();
 </script>
 </body>
