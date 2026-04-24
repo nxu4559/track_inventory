@@ -1,13 +1,7 @@
 {
-    "version": 2,
-    "buildCommand": null,
-    "outputDirectory": ".",
-    "builds": [
-      { "src": "api/config.js", "use": "@vercel/node" },
-      { "src": "index.html", "use": "@vercel/static" }
-    ],
-    "routes": [
-      { "src": "/api/config", "dest": "/api/config.js" },
-      { "src": "/(.*)", "dest": "/index.html" }
-    ]
-  }
+  "version": 2,
+  "routes": [
+    { "src": "/api/config", "dest": "/api/config.js" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}
