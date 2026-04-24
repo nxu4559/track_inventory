@@ -757,8 +757,8 @@ const DEMO_ITEMS = [
 ];
 
 // ── PASTE YOUR SUPABASE CREDENTIALS HERE ──────────────
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://urcrbbceqbfyexbzkwki.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_98hkwbN_O3SoohjEOjGzmw_J-P4-z-a';
 // ──────────────────────────────────────────────────────
 
 async function connectDB() {
@@ -1267,24 +1267,24 @@ function renderAddstock() {
     <div class="form-row"><label class="form-label">Type SKU / Barcode</label>
     <div style="display:flex;gap:8px"><input class="form-input mono" id="pa-manual" placeholder="e.g. OSB6040Q-20W or 10002839" onkeydown="if(event.key==='Enter')paLookup()"/><button class="btn primary" style="width:auto" onclick="paLookup()">Find</button></div></div>`;
   } else if (s.step===2) {
-    html += `<div class="step-label">Step 2 of 4</div><div class="step-title">Scan Section Barcode</div>
+    html += `<div class="step-label">Step 2 of 4</div><div class="step-title">Select Location</div>
     <div class="found-box"><div class="found-label">✓ Item Found</div><div class="found-name">${s.item.name}</div><div class="found-sub">${s.item.sku} · Stock: ${totalQty(s.item)} ${s.item.unit}</div></div>
-    <div class="scan-box" id="scan-box-pasec" onclick="startScanner('pasec')">
-      <div class="scan-box-icon">📷</div><div class="scan-box-label">Scan section / location barcode</div>
-    </div>
-    <div id="pasec-scanner-wrap" style="display:none;margin-bottom:12px"><div class="scanner-live-wrap"><div id="pasec-reader"></div></div><button class="btn secondary" style="margin-top:8px;width:auto;padding:7px 14px;font-size:13px" onclick="stopScanner('pasec')">Cancel</button></div>
-    <div class="or-row">or</div>
-    <div class="form-row"><label class="form-label">Type Section Code</label>
-    <div style="display:flex;gap:8px"><input class="form-input mono" id="pa-sec-manual" placeholder="e.g. A4-01, M08-A1" onkeydown="if(event.key==='Enter')paSectionSet()"/><button class="btn primary" style="width:auto" onclick="paSectionSet()">Next</button></div></div>`;
+    <div class="form-row"><label class="form-label">1. Select Shelf</label>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:4px" id="shelf-picker">
+      ${renderShelfPicker(s.section)}
+    </div></div>
+    ${s.section ? `<div class="form-row"><label class="form-label">2. Select Bay</label>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+      ${renderBayPicker(s.section, s.shelf)}
+    </div></div>` : ''}
+    <button class="btn primary full" style="margin-top:8px" onclick="paStep3()" ${(!s.section||!s.shelf)?'disabled':''}>Next →</button>`;
   } else if (s.step===3) {
-    html += `<div class="step-label">Step 3 of 4</div><div class="step-title">Select Shelf Level</div>
-    <div class="found-box" style="background:var(--blue-bg);border-color:rgba(79,142,247,0.3)"><div class="found-label" style="color:var(--accent)">✓ Section: ${s.section}</div><div class="found-name" style="font-size:14px">Select a shelf level below</div></div>
-    <div class="shelf-grid">${[4,3,2,1].map(n=>`<button class="shelf-btn ${s.shelf===n?'selected':''}" onclick="paShelfSelect(${n})"><div class="shelf-btn-name">Shelf ${n} ${n===4?'(Top)':n===1?'(Bottom)':''}</div><div class="shelf-btn-num">Level 0${n}</div></button>`).join('')}</div>`;
+    html += `<div class="step-label">Step 3 of 4</div><div class="step-title">Enter Quantity</div>`;
   } else if (s.step===4) {
-    html += `<div class="step-label">Step 4 of 4</div><div class="step-title">Enter Quantity</div>
+    html += `<div class="step-label">Step 3 of 3</div><div class="step-title">Enter Quantity</div>
     <div class="summary-block">
       <div class="summary-row"><span class="sum-label">Item</span><span class="sum-val blue">${s.item.sku}</span></div>
-      <div class="summary-row"><span class="sum-label">Location</span><span class="sum-val">${s.section} · Shelf ${s.shelf}</span></div>
+      <div class="summary-row"><span class="sum-label">Location</span><span class="sum-val">${s.section} · ${s.shelf}</span></div>
     </div>
     <div class="form-row"><label class="form-label">Quantity to Add</label>
     <div class="qty-row"><button class="qty-btn-lg" onclick="adjQty(-1)">−</button><input class="qty-input" id="flow-qty" type="number" value="${s.qty}" min="1" oninput="flowState.qty=parseInt(this.value)||1"/><button class="qty-btn-lg" onclick="adjQty(1)">+</button></div></div>
@@ -1300,28 +1300,55 @@ function paLookup() {
   if (!item) { openQuickAdd(val, 'addstock'); return; }
   flowState.item=item; flowState.step=2; renderAddstock();
 }
-function paSectionSet() {
-  const val = document.getElementById('pa-sec-manual').value.trim();
-  if (!val) { showToast('Enter a section code','error'); return; }
-  flowState.section=val.toUpperCase(); flowState.step=3; renderAddstock();
+function paPickShelf(shelf) {
+  flowState.section = shelf;
+  flowState.shelf = null; // reset bay when shelf changes
+  renderAddstock();
 }
-function paShelfSelect(n) { flowState.shelf=n; flowState.step=4; renderAddstock(); }
-async function saveAddstock() {
-  const s = flowState;
-  s.qty = parseInt(document.getElementById('flow-qty').value)||1;
-  s.notes = document.getElementById('flow-notes').value;
-  const locKey = s.section;
-  const shelfName = 'Shelf '+s.shelf;
-  const ex = s.item.locations.find(l=>l.loc===locKey&&l.shelf===shelfName);
-  if (ex) ex.qty+=s.qty;
-  else s.item.locations.push({loc:locKey, shelf:shelfName, qty:s.qty});
-  const entry = {type:'addstock',itemId:s.item.id,itemName:s.item.name,location:locKey+' · '+shelfName,qty:s.qty,notes:s.notes,ts:Date.now()};
-  activityLog.unshift(entry);
-  await Promise.all([dbSaveItem(s.item), dbLogActivity(entry)]);
-  renderAll(); flowState.step=5; renderAddstock();
+function paPickBay(bay) {
+  flowState.shelf = bay;
+  renderAddstock();
+}
+function paStep3() {
+  if (!flowState.section || !flowState.shelf) return;
+  flowState.step = 4;
+  renderAddstock();
+}
+function paSectionSet() {} // legacy no-op
+function paShelfSelect(n) {} // legacy no-op
+
+
+function renderShelfPicker(selected, shelfFn, bayFn) {
+  var fn = shelfFn || 'paPickShelf';
+  var shelves = ['A1','A2','A3','A4','B1','B2','B3','B4','C1','C2','C3','C4','D1','D2','D3','D4'];
+  var AC = {A:'#BE185D',B:'#065F46',C:'#92400E',D:'#1E40AF'};
+  var AB = {A:'#FCE7F3',B:'#D1FAE5',C:'#FEF3C7',D:'#DBEAFE'};
+  var AD = {A:'#F9A8D4',B:'#6EE7B7',C:'#FCD34D',D:'#93C5FD'};
+  return shelves.map(function(sh) {
+    var a = sh[0], active = selected === sh;
+    var col = AC[a]||'#2563EB', bg = active ? col : (AB[a]||'#F0F2F7');
+    var tc = active ? '#fff' : col, bd = active ? col : (AD[a]||'#D0D6E4');
+    return '<button onclick="' + fn + '(' + JSON.stringify(sh) + ')" style="padding:8px 4px;border-radius:8px;border:1.5px solid ' + bd + ';background:' + bg + ';color:' + tc + ';font-size:13px;font-weight:700;cursor:pointer">' + sh + '</button>';
+  }).join('');
 }
 
-// ── SELL ──
+function renderBayPicker(section, selectedBay, bayFn) {
+  var fn = bayFn || 'paPickBay';
+  var a = section ? section[0] : '';
+  var bays = (a==='D'||a==='C') ? ['#01','#02','#03','#04'] : ['#01','#02'];
+  var AC = {A:'#BE185D',B:'#065F46',C:'#92400E',D:'#1E40AF'};
+  var AB = {A:'#FCE7F3',B:'#D1FAE5',C:'#FEF3C7',D:'#DBEAFE'};
+  var AD = {A:'#F9A8D4',B:'#6EE7B7',C:'#FCD34D',D:'#93C5FD'};
+  var col = AC[a]||'#2563EB';
+  return bays.map(function(b) {
+    var active = selectedBay === b;
+    var bg = active ? col : (AB[a]||'#F0F2F7');
+    var tc = active ? '#fff' : col, bd = active ? col : (AD[a]||'#D0D6E4');
+    return '<button onclick="' + fn + '(' + JSON.stringify(b) + ')" style="padding:8px 4px;border-radius:8px;border:1.5px solid ' + bd + ';background:' + bg + ';color:' + tc + ';font-size:13px;font-weight:700;cursor:pointer">' + b + '</button>';
+  }).join('');
+}
+
+
 function renderSell() {
   const s = flowState;
   const steps=3;
@@ -1411,7 +1438,12 @@ function renderMove() {
     const from=(s.item.locations||[]).find(l=>l.loc===s.location);
     html+=`<div class="step-label">Step 3 of 3</div><div class="step-title">To Location</div>
     <div class="summary-block"><div class="summary-row"><span class="sum-label">Moving From</span><span class="sum-val">${s.location}</span></div></div>
-    <div class="form-row"><label class="form-label">Destination Location</label><input class="form-input mono" id="move-to" placeholder="e.g. B4-02" value="${s.toSection||''}"/></div>
+    <div class="form-row"><label class="form-label">Destination — Select Shelf</label>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
+      ${renderShelfPicker(s.toSection,'movePickShelf','movePickBay')}
+    </div>
+    ${s.toSection ? `<div class="form-row"><label class="form-label">Select Bay</label><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">${renderBayPicker(s.toSection,s.toBay,'movePickBay')}</div></div>` : ''}
+    </div>
     <div class="form-row"><label class="form-label">Quantity to Move</label>
     <div class="qty-row"><button class="qty-btn-lg" onclick="adjQty(-1)">−</button><input class="qty-input" id="flow-qty" type="number" value="${s.qty}" min="1" max="${from?from.qty:99}" oninput="flowState.qty=parseInt(this.value)||1"/><button class="qty-btn-lg" onclick="adjQty(1)">+</button></div></div>
     <button class="btn primary full" onclick="saveMove()">Confirm Move</button>`;
@@ -1427,11 +1459,13 @@ function moveLookup() {
 }
 function moveFrom(loc) { flowState.location=loc; renderMove(); }
 function moveStep3() { if (!flowState.location) return; flowState.step=3; renderMove(); }
+function movePickShelf(shelf) { flowState.toSection=shelf; flowState.toBay=null; renderMove(); }
+function movePickBay(bay) { flowState.toBay=bay; renderMove(); }
 async function saveMove() {
   const s=flowState;
   s.qty=parseInt(document.getElementById('flow-qty').value)||1;
-  s.toSection=document.getElementById('move-to').value.trim().toUpperCase();
-  if (!s.toSection) { showToast('Enter destination','error'); return; }
+  s.toSection = s.toSection ? 'M08'+s.toSection+(s.toBay||'') : '';
+  if (!s.toSection) { showToast('Select destination shelf and bay','error'); return; }
   const from=s.item.locations.find(l=>l.loc===s.location);
   if (from) from.qty=Math.max(0,from.qty-s.qty);
   const to=s.item.locations.find(l=>l.loc===s.toSection);
@@ -1661,8 +1695,8 @@ document.querySelectorAll('.modal-overlay').forEach(o=>{
 // INIT — connect automatically using hardcoded credentials
 // ══════════════════════════════════════════════════════
 (async () => {
-  const url = 'https://urcrbbceqbfyexbzkwki.supabase.co';
-  const key = 'sb_publishable_98hkwbN_O3SoohjEOjGzmw_J-P4-z-a';
+  const url = SUPABASE_URL;
+  const key = SUPABASE_KEY;
 
   // If credentials are hardcoded, skip setup screen entirely
   if (url && url !== 'YOUR_SUPABASE_URL') {
