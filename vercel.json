@@ -1,7 +1,6 @@
 {
   "version": 2,
-  "routes": [
-    { "src": "/api/config", "dest": "/api/config.js" },
-    { "src": "/(.*)", "dest": "/index.html" }
-  ]
+  "buildCommand": "node build.js",
+  "outputDirectory": "dist",
+  "installCommand": ""
 }
