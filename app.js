@@ -155,13 +155,85 @@ async function loadData() {
 }
 
 async function fixLocationCodes() {
+  // Fix double-letter codes like M08AA3#01 → M08A3#01
+  let changed = [];
+  items.forEach(item => {
+    (item.locations || []).forEach(loc => {
+      // Pattern: zone(M08) + aisle(A) + aisle-again(A) + number(3) + bay(#01)
+      const parts = loc.loc.match(/^([A-Z][0-9]+)([A-D])([A-D])([0-9]+)(#[0-9]+)$/);
+      if (parts && parts[2] === parts[3]) {
+        const fixed = parts[1] + parts[2] + parts[4] + parts[5];
+        console.log('Fixing:', loc.loc, '→', fixed);
+        loc.loc = fixed;
+        loc.shelf = fixed;
+        if (!changed.includes(item.id)) changed.push(item.id);
+      }
+    });
+  });
+  for (const id of changed) {
+    const item = items.find(i => i.id === id);
+    if (item) await dbSaveItem(item);
+  }
+  if (changed.length) console.log('Fixed', changed.length, 'items');
+}
+
+
+async function dbSaveItem(item) {
+  if (!sbClient) return;
+  const payload = {
+    name: item.name, sku: item.sku, barcode: item.barcode || '',
+    unit: item.unit, thresh: item.thresh, sold: item.sold,
+    locations: item.locations
+  };
+  if (item.id && item.id.length > 8) {
+    await sbClient.from('items').update(payload).eq('id', item.id);
+  } else {
+    const { data } = await sbClient.from('items').insert(payload).select().single();
+    if (data) item.id = data.id;
+  }
+}
+
+async function dbLogActivity(entry) {
+  if (!sbClient) return;
+  await sbClient.from('activity').insert({
+    type: entry.type, item_id: entry.itemId,
+    item_name: entry.itemName, location: entry.location,
+    qty: entry.qty, reason: entry.reason || '',
+    notes: entry.notes || ''
+  });
+}
+
+async function loadData() {
+  const [itemsRes, actRes] = await Promise.all([
+    sbClient.from('items').select('*').order('created_at', { ascending: false }),
+    sbClient.from('activity').select('*').order('ts', { ascending: false }).limit(150)
+  ]);
+  if (itemsRes.error) throw itemsRes.error;
+  items = (itemsRes.data || []).map(r => ({
+    id: r.id, name: r.name, sku: r.sku,
+    barcode: r.barcode || '', unit: r.unit || 'pcs',
+    thresh: r.thresh || 5, sold: r.sold || false,
+    locations: r.locations || []
+  }));
+  activityLog = (actRes.data || []).map(r => ({
+    id: r.id, type: r.type, itemId: r.item_id,
+    itemName: r.item_name, location: r.location,
+    qty: r.qty, reason: r.reason, notes: r.notes,
+    ts: new Date(r.ts).getTime()
+  }));
+  // Fix any double-letter location codes e.g. M08AA3#01 → M08A3#01
+  await fixLocationCodes();
+}
+
+async function fixLocationCodes() {
   const bad = /^(M\d+)([A-D])(\d+)(#\d+)$/; // matches M08AA3#01
   let needsSave = false;
   items.forEach(item => {
     (item.locations || []).forEach(loc => {
       const m = loc.loc.match(bad);
       if (m) {
-        loc.loc = m[1] + m[2] + m[3] + m[4];
+        // m[1]=M08, m[2]=first letter, m[3]=second letter (duplicate), m[4]=number, m[5]=bay
+        loc.loc = m[1] + m[2] + m[4] + m[5];
         loc.shelf = loc.loc;
         needsSave = true;
         console.log('Fixed location:', loc.loc);
