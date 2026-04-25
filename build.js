@@ -10,25 +10,36 @@ if (!url || !key) {
 
 let html = fs.readFileSync('index.html', 'utf8');
 
-// Replace the entire fetch block with hardcoded values
-const oldBlock = `    showLoading();
+// Replace the entire async IIFE init block
+const oldInit = `  try {
+    showLoading();
     // Fetch credentials from Vercel serverless function
     const res = await fetch('/api/config');
     if (!res.ok) throw new Error('Could not load config (/api/config returned ' + res.status + ')');
-    const cfg = await res.json();`;
+    const cfg = await res.json();
+    if (!cfg.url || !cfg.key) throw new Error('Environment variables not set in Vercel');
+    sbClient = window.supabase.createClient(cfg.url, cfg.key);`;
 
-const newBlock = `    showLoading();
-    // Credentials injected at build time by build.js
-    const cfg = { url: '${url}', key: '${key}' };`;
+const newInit = `  try {
+    showLoading();
+    var cfg = { url: '${url}', key: '${key}' };
+    sbClient = window.supabase.createClient(cfg.url, cfg.key);`;
 
 if (html.includes("fetch('/api/config')")) {
-  html = html.replace(oldBlock, newBlock);
-  console.log('✓ Credentials injected successfully');
+  html = html.replace(oldInit, newInit);
+  console.log('✓ Credentials injected');
 } else {
-  console.error('ERROR: Could not find fetch block in index.html');
+  console.error('Could not find init block - check index.html');
   process.exit(1);
 }
 
+// Write output
 fs.mkdirSync('dist', { recursive: true });
 fs.writeFileSync('dist/index.html', html);
+
+// Verify
+if (fs.readFileSync('dist/index.html', 'utf8').includes("fetch('/api/config')")) {
+  console.error('ERROR: fetch still present in output!');
+  process.exit(1);
+}
 console.log('✓ Build complete → dist/index.html');
