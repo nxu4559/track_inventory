@@ -4,42 +4,30 @@ const url = process.env.SUPABASE_URL || '';
 const key = process.env.SUPABASE_KEY || '';
 
 if (!url || !key) {
-  console.error('ERROR: SUPABASE_URL and SUPABASE_KEY must be set in Vercel environment variables');
+  console.error('ERROR: SUPABASE_URL and SUPABASE_KEY must be set');
   process.exit(1);
 }
 
 let html = fs.readFileSync('index.html', 'utf8');
 
-// Replace the entire async IIFE init block
-const oldInit = `  try {
-    showLoading();
-    // Fetch credentials from Vercel serverless function
-    const res = await fetch('/api/config');
-    if (!res.ok) throw new Error('Could not load config (/api/config returned ' + res.status + ')');
-    const cfg = await res.json();
-    if (!cfg.url || !cfg.key) throw new Error('Environment variables not set in Vercel');
-    sbClient = window.supabase.createClient(cfg.url, cfg.key);`;
-
-const newInit = `  try {
-    showLoading();
-    var cfg = { url: '${url}', key: '${key}' };
-    sbClient = window.supabase.createClient(cfg.url, cfg.key);`;
-
-if (html.includes("fetch('/api/config')")) {
-  html = html.replace(oldInit, newInit);
-  console.log('✓ Credentials injected');
-} else {
-  console.error('Could not find init block - check index.html');
+// Just find and replace the single fetch line - simpler and more reliable
+if (!html.includes("fetch('/api/config')")) {
+  console.error('ERROR: fetch line not found in index.html');
   process.exit(1);
 }
 
-// Write output
+// Replace the whole try block simply
+html = html.replace(
+  /showLoading\(\);[\s\S]*?sbClient = window\.supabase\.createClient\(cfg\.url, cfg\.key\);/,
+  `showLoading();\n    var cfg = { url: '${url}', key: '${key}' };\n    sbClient = window.supabase.createClient(cfg.url, cfg.key);`
+);
+
+// Verify fetch is gone
+if (html.includes("fetch('/api/config')")) {
+  console.error('ERROR: fetch still present after replacement!');
+  process.exit(1);
+}
+
 fs.mkdirSync('dist', { recursive: true });
 fs.writeFileSync('dist/index.html', html);
-
-// Verify
-if (fs.readFileSync('dist/index.html', 'utf8').includes("fetch('/api/config')")) {
-  console.error('ERROR: fetch still present in output!');
-  process.exit(1);
-}
-console.log('✓ Build complete → dist/index.html');
+console.log('✓ Credentials injected and build complete');
