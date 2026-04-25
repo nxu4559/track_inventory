@@ -4,30 +4,27 @@ const url = process.env.SUPABASE_URL || '';
 const key = process.env.SUPABASE_KEY || '';
 
 if (!url || !key) {
-  console.error('ERROR: SUPABASE_URL and SUPABASE_KEY must be set');
+  console.error('ERROR: SUPABASE_URL and SUPABASE_KEY must be set in Vercel environment variables');
   process.exit(1);
 }
 
-let html = fs.readFileSync('index.html', 'utf8');
-
-// Just find and replace the single fetch line - simpler and more reliable
-if (!html.includes("fetch('/api/config')")) {
-  console.error('ERROR: fetch line not found in index.html');
-  process.exit(1);
-}
-
-// Replace the whole try block simply
-html = html.replace(
-  /showLoading\(\);[\s\S]*?sbClient = window\.supabase\.createClient\(cfg\.url, cfg\.key\);/,
-  `showLoading();\n    var cfg = { url: '${url}', key: '${key}' };\n    sbClient = window.supabase.createClient(cfg.url, cfg.key);`
+// Inject credentials into app.js
+let appJs = fs.readFileSync('app.js', 'utf8');
+appJs = appJs.replace(
+  "var cfg = { url: '%%SUPABASE_URL%%', key: '%%SUPABASE_KEY%%' };",
+  "var cfg = { url: '" + url + "', key: '" + key + "' };"
 );
 
-// Verify fetch is gone
-if (html.includes("fetch('/api/config')")) {
-  console.error('ERROR: fetch still present after replacement!');
+if (appJs.includes('%%SUPABASE_URL%%')) {
+  console.error('ERROR: Credential placeholders still present in app.js');
   process.exit(1);
 }
 
+// Copy all files to dist
 fs.mkdirSync('dist', { recursive: true });
-fs.writeFileSync('dist/index.html', html);
-console.log('✓ Credentials injected and build complete');
+fs.writeFileSync('dist/app.js',     appJs);
+fs.copyFileSync('index.html',       'dist/index.html');
+fs.copyFileSync('styles.css',       'dist/styles.css');
+
+console.log('✓ Credentials injected into app.js');
+console.log('✓ Build complete → dist/');
