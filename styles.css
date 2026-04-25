@@ -520,12 +520,12 @@ tr:hover td { background: var(--surface2); }
 /* shelf picker grid */
 .shelf-picker { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; margin-bottom: 6px; }
 .shelf-btn {
-  padding: 8px 4px; border-radius: 8px;
+  padding: 10px 4px; border-radius: 8px;
   border: 1.5px solid var(--border2);
   background: var(--surface2);
-  font-size: 11px; font-weight: 700; font-family: var(--font-mono);
+  font-family: var(--font-serif); font-size: 13px; font-style: italic;
   color: var(--text2); text-align: center;
-  transition: all 0.1s;
+  transition: all 0.1s; cursor: pointer;
 }
 .shelf-btn:hover { border-color: var(--text2); }
 .shelf-btn.A        { border-color: #FBCFE8; background: #FDF2F8; color: #BE185D; }

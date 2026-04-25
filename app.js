@@ -199,35 +199,7 @@ function renderStats() {
 }
 
 function renderDashAlerts() {
-  const low = items.filter(i => statusOf(i) === 'low' || statusOf(i) === 'out');
-  const el = document.getElementById('dash-alerts');
-  if (!low.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-icon">🎉</div>No low stock alerts</div>';
-    return;
-  }
-  el.innerHTML = `
-    <table>
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>SKU / Code</th>
-          <th>Barcode</th>
-          <th>Status</th>
-          <th>Qty</th>
-          <th>Location</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${low.map(i => `<tr onclick="openDetailModal('${i.id}')" style="cursor:pointer">
-          <td><div class="td-name">${i.name}</div></td>
-          <td><span class="mono">${i.sku}</span></td>
-          <td><span class="mono" style="color:var(--muted)">${i.barcode || '—'}</span></td>
-          <td><span class="tag ${statusOf(i)}">${statusLabel(statusOf(i))}</span></td>
-          <td><strong>${totalQty(i)}</strong> <span style="color:var(--muted)">${i.unit}</span></td>
-          <td><div class="loc-chips">${(i.locations || []).map(l => '<span class="loc-chip">' + l.loc + ' (' + l.qty + ')</span>').join('') || '—'}</div></td>
-        </tr>`).join('')}
-      </tbody>
-    </table>`;
+  // Low stock alerts hidden for now
 }
 
 function renderDashActivity() {
@@ -870,7 +842,7 @@ function buildShelfPicker(selected, fn) {
       shelfList.forEach(s => {
         const a = aisleColors[aisle] || '';
         const sel = selected === s.code ? 'sel' : '';
-        html += '<button class="shelf-btn ' + a + ' ' + sel + '" onclick="' + fn + '(' + JSON.stringify(s.code) + ')">' + s.code + '</button>';
+        html += '<button class="shelf-btn ' + a + ' ' + sel + '" onclick="' + fn + "(\'" + s.code + "\')" + '">' + s.code + '</button>';
       });
     }
     html += '</div></div>';
@@ -882,7 +854,7 @@ function buildBayPicker(shelfCode, selected, fn) {
   const bays = getBaysForShelf(shelfCode);
   return bays.map(b => {
     const sel = selected === b ? 'sel' : '';
-    return '<button class="bay-btn ' + sel + '" onclick="' + fn + '(' + JSON.stringify(b) + ')">' + b + '</button>';
+    return '<button class="bay-btn ' + sel + '" onclick="' + fn + "(\'" + b + "\')" + '">' + b + '</button>';
   }).join('');
 }
 
