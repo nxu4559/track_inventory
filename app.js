@@ -18,10 +18,10 @@ const ZONES = {
   M08: {
     label: 'M08',
     aisles: {
-      A: { rows: ['A1','A2','A3','A4'], bays: ['#01','#02'] },
-      B: { rows: ['B1','B2','B3','B4'], bays: ['#01','#02'] },
-      C: { rows: ['C1','C2','C3','C4'], bays: ['#01','#02','#03','#04'] },
-      D: { rows: ['D1','D2','D3','D4'], bays: ['#01','#02','#03','#04'] },
+      A: { rows: ['1','2','3','4'], bays: ['#01','#02'] },
+      B: { rows: ['1','2','3','4'], bays: ['#01','#02'] },
+      C: { rows: ['1','2','3','4'], bays: ['#01','#02','#03','#04'] },
+      D: { rows: ['1','2','3','4'], bays: ['#01','#02','#03','#04'] },
     }
   },
   // Uncomment and fill in when you add more zones:
@@ -67,12 +67,11 @@ function statusOf(item) {
   if (item.sold) return 'sold';
   const t = totalQty(item);
   if (t <= 0) return 'out';
-  if (t <= item.thresh) return 'low';
   return 'in';
 }
 
 function statusLabel(s) {
-  return { in:'In Stock', low:'Low Stock', out:'Out of Stock', sold:'Sold' }[s] || s;
+  return { in:'In Stock', out:'Out of Stock', sold:'Sold' }[s] || s;
 }
 
 function actColor(t) {
@@ -178,6 +177,7 @@ async function loadData() {
 function renderAll() {
   renderStats();
   renderDashAlerts();
+  renderDashRecentItems();
   renderDashActivity();
   renderInvTable();
   renderActivity();
@@ -200,6 +200,29 @@ function renderStats() {
 
 function renderDashAlerts() {
   // Low stock alerts hidden for now
+}
+
+function renderDashRecentItems() {
+  const el = document.getElementById('dash-recent-items');
+  if (!el) return;
+  const recent = items.slice(0, 8);
+  if (!recent.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📦</div>No items yet — add your first item!</div>';
+    return;
+  }
+  el.innerHTML = recent.map(i => {
+    const s = statusOf(i);
+    return `<div class="dash-item-row" onclick="openDetailModal('${i.id}')">
+      <div class="dash-item-info">
+        <div class="dash-item-name">${i.name}</div>
+        <div class="dash-item-meta">${i.sku}${i.barcode ? ' · ' + i.barcode : ''}</div>
+      </div>
+      <div class="dash-item-right">
+        <div class="dash-item-qty">${totalQty(i)} <span>${i.unit}</span></div>
+        <span class="tag ${s}">${statusLabel(s)}</span>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderDashActivity() {
@@ -825,7 +848,6 @@ function adjQty(d) {
 
 function buildShelfPicker(selected, fn) {
   const shelves = getAllShelves();
-  // Group by zone then aisle for display
   let html = '';
   const byZone = {};
   shelves.forEach(s => {
@@ -833,22 +855,21 @@ function buildShelfPicker(selected, fn) {
     if (!byZone[s.zone][s.aisle]) byZone[s.zone][s.aisle] = [];
     byZone[s.zone][s.aisle].push(s);
   });
-  const aisleColors = { A:'A', B:'B', C:'C', D:'D' };
   for (const [zone, aisles] of Object.entries(byZone)) {
     html += '<div style="margin-bottom:10px">';
     html += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--muted2);text-transform:uppercase;margin-bottom:6px">' + zone + '</div>';
     html += '<div class="shelf-picker">';
     for (const [aisle, shelfList] of Object.entries(aisles)) {
-      shelfList.forEach(s => {
-        const a = aisleColors[aisle] || '';
-        const sel = selected === s.code ? 'sel' : '';
-        html += '<button class="shelf-btn ' + a + ' ' + sel + '" onclick="' + fn + "(\'" + s.code + "\')" + '">' + s.code + '</button>';
+      shelfList.forEach(function(s) {
+        var sel = selected === s.code ? 'sel' : '';
+        html += '<button class="shelf-btn ' + aisle + ' ' + sel + '" onclick="' + fn + "(\'" + s.code + "\')" + '">' + s.code + '</button>';
       });
     }
     html += '</div></div>';
   }
   return html;
 }
+
 
 function buildBayPicker(shelfCode, selected, fn) {
   const bays = getBaysForShelf(shelfCode);

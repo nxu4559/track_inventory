@@ -363,10 +363,9 @@ tr:hover td { background: var(--surface2); }
   font-size: 11px; font-weight: 600;
   padding: 2px 8px; border-radius: 20px;
 }
-.tag.in     { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-bd); }
-.tag.low    { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-bd); }
-.tag.out    { background: var(--red-bg);    color: var(--red);    border: 1px solid var(--red-bd); }
-.tag.sold   { background: var(--surface2);  color: var(--muted);  border: 1px solid var(--border2); }
+.tag.in   { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-bd); }
+.tag.out  { background: var(--red-bg);    color: var(--red);    border: 1px solid var(--red-bd); }
+.tag.sold { background: var(--surface2);  color: var(--muted);  border: 1px solid var(--border2); }
 
 .pills { display: flex; gap: 4px; flex-wrap: wrap; }
 .pill {
@@ -648,6 +647,24 @@ tr:hover td { background: var(--surface2); }
 .toast.show { opacity: 1; transform: translateY(0); }
 .toast.ok  { background: var(--green); }
 .toast.err { background: var(--red); }
+
+/* ══════════════════════════════════════════
+   DASHBOARD ITEMS
+══════════════════════════════════════════ */
+.dash-item-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 18px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background 0.1s;
+}
+.dash-item-row:last-child { border-bottom: none; }
+.dash-item-row:hover { background: var(--surface2); }
+.dash-item-info { flex: 1; min-width: 0; }
+.dash-item-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dash-item-meta { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-top: 2px; }
+.dash-item-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.dash-item-qty { font-family: var(--font-serif); font-size: 20px; font-style: italic; color: var(--text); }
+.dash-item-qty span { font-size: 11px; color: var(--muted); font-family: var(--font); font-style: normal; }
 
 /* ══════════════════════════════════════════
    EMPTY STATE
