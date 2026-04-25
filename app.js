@@ -150,6 +150,25 @@ async function loadData() {
     qty: r.qty, reason: r.reason, notes: r.notes,
     ts: new Date(r.ts).getTime()
   }));
+  // Fix any double-letter location codes e.g. M08AA3#01 → M08A3#01
+  await fixLocationCodes();
+}
+
+async function fixLocationCodes() {
+  const bad = /^(M\d+)([A-D])(\d+)(#\d+)$/; // matches M08AA3#01
+  let needsSave = false;
+  items.forEach(item => {
+    (item.locations || []).forEach(loc => {
+      const m = loc.loc.match(bad);
+      if (m) {
+        loc.loc = m[1] + m[2] + m[3] + m[4];
+        loc.shelf = loc.loc;
+        needsSave = true;
+        console.log('Fixed location:', loc.loc);
+      }
+    });
+    if (needsSave) dbSaveItem(item);
+  });
 }
 
 // ─── INIT ─────────────────────────────────────────────
@@ -193,9 +212,11 @@ function renderAll() {
 function renderStats() {
   const locs = new Set(items.flatMap(i => (i.locations || []).map(l => l.loc))).size;
   document.getElementById('stat-total').textContent = items.length;
-  document.getElementById('stat-low').textContent   = items.filter(i => statusOf(i) === 'low').length;
   document.getElementById('stat-out').textContent   = items.filter(i => statusOf(i) === 'out').length;
   document.getElementById('stat-locs').textContent  = locs;
+  // hide low stock stat
+  const lowEl = document.getElementById('stat-low');
+  if (lowEl) lowEl.closest('.stat-card').style.display = 'none';
 }
 
 function renderDashAlerts() {
@@ -385,16 +406,18 @@ function renderMap() {
   // Walking aisle
   html += '<div class="map-aisle-gap"><div class="map-aisle-gap-line"></div><div class="map-aisle-gap-text">— walking aisle —</div><div class="map-aisle-gap-line"></div></div>';
 
-  // D full width
+  // D full width - uses ZONES config
+  const zoneM08 = ZONES['M08'];
+  const dAisle  = zoneM08.aisles['D'];
   html += '<div>';
   html += '<div class="map-section-label" style="margin-bottom:8px">D</div>';
-  html += bayLabels(['#01','#02','#03','#04'], CELL_W_D);
-  ['D4','D3','D2','D1'].forEach(row => {
-    html += `<div class="map-row"><div class="map-row-label">${row}</div>`;
-    ['#01','#02','#03','#04'].forEach(bay => { html += makeCell('M08' + row + bay, CELL_W_D, CELL_H); });
+  html += bayLabels(dAisle.bays, CELL_W_D);
+  [...dAisle.rows].reverse().forEach(row => {
+    const rowLabel = 'D' + row;
+    html += `<div class="map-row"><div class="map-row-label">${rowLabel}</div>`;
+    dAisle.bays.forEach(bay => { html += makeCell('M08D' + row + bay, CELL_W_D, CELL_H); });
     html += '</div>';
   });
-  // Entrance label
   html += '<div style="text-align:center;font-size:11px;color:var(--muted2);margin-top:10px;letter-spacing:0.06em">▼ ENTRANCE / FRONT</div>';
   html += '</div>';
 
