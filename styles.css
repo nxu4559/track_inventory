@@ -239,7 +239,7 @@ button { cursor: pointer; }
 ══════════════════════════════════════════ */
 .dash-top-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1.4fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 12px;
   margin-bottom: 16px;
 }
@@ -258,16 +258,24 @@ button { cursor: pointer; }
   display: grid; grid-template-columns: 1fr 1fr;
   gap: 8px; width: 100%;
 }
+.dash-actions-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
 .sab {
-  padding: 10px 8px;
-  border-radius: var(--radius-sm);
+  padding: 14px 8px;
+  border-radius: var(--radius);
   border: 1.5px solid var(--border);
-  background: var(--surface2);
-  font-size: 12px; font-weight: 700;
+  background: var(--surface);
+  font-size: 13px; font-weight: 700;
   cursor: pointer; transition: all 0.12s;
   white-space: nowrap;
+  box-shadow: var(--shadow);
+  width: 100%;
 }
-.sab:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+.sab:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
 .sab.green  { border-color: var(--green-bd); background: var(--green-bg); color: var(--green); }
 .sab.red    { border-color: var(--red-bd);   background: var(--red-bg);   color: var(--red); }
 .sab.blue   { border-color: #BFDBFE; background: #EFF6FF; color: var(--accent); }
