@@ -99,31 +99,54 @@
 
       <!-- DASHBOARD -->
       <div class="page active" id="page-dashboard">
-        <div class="stats-grid">
-          <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-val" id="stat-total">—</div><div class="stat-label">Total Items</div></div>
-          <div class="stat-card"><div class="stat-icon">⚠️</div><div class="stat-val warn" id="stat-low">—</div><div class="stat-label">Low Stock</div></div>
-          <div class="stat-card"><div class="stat-icon">🚫</div><div class="stat-val danger" id="stat-out">—</div><div class="stat-label">Out of Stock</div></div>
-          <div class="stat-card"><div class="stat-icon">📍</div><div class="stat-val accent" id="stat-locs">—</div><div class="stat-label">Locations Used</div></div>
-        </div>
-        <div class="dash-grid">
-          <div class="card">
-            <div class="card-head"><div class="card-title">Quick Actions</div></div>
-            <div class="quick-grid">
-              <button class="quick-card green" onclick="openFlow('addstock')"><span>↓</span>Add Stock</button>
-              <button class="quick-card red" onclick="openFlow('sell')"><span>↑</span>Sell / Remove</button>
-              <button class="quick-card blue" onclick="openFlow('move')"><span>⇄</span>Move Stock</button>
-              <button class="quick-card purple" onclick="showPage('map')"><span>⊞</span>View Map</button>
+
+        <div class="dash-top-row">
+          <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <div class="stat-val" id="stat-total">—</div>
+            <div class="stat-label">Total Items</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🚫</div>
+            <div class="stat-val danger" id="stat-out">—</div>
+            <div class="stat-label">Out of Stock</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📍</div>
+            <div class="stat-val accent" id="stat-locs">—</div>
+            <div class="stat-label">Locations Used</div>
+          </div>
+          <div class="stat-card stat-actions-card">
+            <div class="stat-action-grid">
+              <button class="sab green" onclick="openFlow('addstock')">↓ Add Stock</button>
+              <button class="sab red" onclick="openFlow('sell')">↑ Sell / Remove</button>
+              <button class="sab blue" onclick="openFlow('move')">⇄ Move Stock</button>
+              <button class="sab purple" onclick="showPage('map')">⊞ View Map</button>
             </div>
           </div>
         </div>
-        <div class="card">
-          <div class="card-head"><div class="card-title">Items</div><button class="card-link" onclick="showPage('inventory')">View all →</button></div>
-          <div id="dash-recent-items"></div>
+
+        <div class="dash-main">
+          <div class="dash-left">
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title">Items</div>
+                <button class="card-link" onclick="showPage('inventory')">View all →</button>
+              </div>
+              <div id="dash-recent-items"></div>
+            </div>
+          </div>
+          <div class="dash-right">
+            <div class="card">
+              <div class="card-head">
+                <div class="card-title">Recent Activity</div>
+                <button class="card-link" onclick="showPage('activity')">View all →</button>
+              </div>
+              <div id="dash-activity"></div>
+            </div>
+          </div>
         </div>
-        <div class="card mt-16">
-          <div class="card-head"><div class="card-title">Recent Activity</div><button class="card-link" onclick="showPage('activity')">View all →</button></div>
-          <div id="dash-activity"></div>
-        </div>
+
       </div>
 
       <!-- INVENTORY -->

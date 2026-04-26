@@ -235,11 +235,11 @@ button { cursor: pointer; }
 .card-link:hover { text-decoration: underline; }
 
 /* ══════════════════════════════════════════
-   DASHBOARD STATS
+   DASHBOARD LAYOUT
 ══════════════════════════════════════════ */
-.stats-grid {
+.dash-top-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 1fr 1fr 1fr 1.4fr;
   gap: 12px;
   margin-bottom: 16px;
 }
@@ -247,10 +247,33 @@ button { cursor: pointer; }
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 18px 20px;
+  padding: 20px 22px;
   box-shadow: var(--shadow);
 }
-.stat-icon { font-size: 20px; margin-bottom: 10px; }
+.stat-actions-card {
+  display: flex; align-items: center; justify-content: center;
+  padding: 14px;
+}
+.stat-action-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; width: 100%;
+}
+.sab {
+  padding: 10px 8px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--surface2);
+  font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: all 0.12s;
+  white-space: nowrap;
+}
+.sab:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+.sab.green  { border-color: var(--green-bd); background: var(--green-bg); color: var(--green); }
+.sab.red    { border-color: var(--red-bd);   background: var(--red-bg);   color: var(--red); }
+.sab.blue   { border-color: #BFDBFE; background: #EFF6FF; color: var(--accent); }
+.sab.purple { border-color: #DDD6FE; background: #F5F3FF; color: #7C3AED; }
+
+.stat-icon { font-size: 18px; margin-bottom: 10px; }
 .stat-val {
   font-family: var(--font);
   font-size: 52px;
@@ -265,25 +288,14 @@ button { cursor: pointer; }
 .stat-val.accent { color: var(--accent); }
 .stat-label { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 0.01em; }
 
-.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-/* ── Quick actions ── */
-.quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 14px; }
-.quick-card {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 6px; padding: 16px 12px;
-  border-radius: var(--radius-sm);
-  border: 1.5px solid var(--border);
-  background: var(--surface2);
-  font-size: 13px; font-weight: 600; color: var(--text);
-  transition: all 0.13s;
+.dash-main {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 12px;
+  align-items: start;
 }
-.quick-card span { font-size: 20px; }
-.quick-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
-.quick-card.green { border-color: var(--green-bd); background: var(--green-bg); color: var(--green); }
-.quick-card.red   { border-color: var(--red-bd);   background: var(--red-bg);   color: var(--red); }
-.quick-card.blue  { border-color: #BFDBFE;         background: #EFF6FF;          color: var(--accent); }
-.quick-card.purple{ border-color: #DDD6FE;         background: #F5F3FF;          color: #7C3AED; }
+.dash-left { min-width: 0; }
+.dash-right { position: sticky; top: calc(var(--topbar-h) + 20px); }
 
 /* ══════════════════════════════════════════
    ALERT ROWS & ACTIVITY
@@ -680,9 +692,11 @@ tr:hover td { background: var(--surface2); }
 /* ══════════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════════ */
-@media (max-width: 900px) {
-  .stats-grid { grid-template-columns: 1fr 1fr; }
-  .dash-grid  { grid-template-columns: 1fr; }
+@media (max-width: 1100px) {
+  .dash-top-row { grid-template-columns: 1fr 1fr 1fr; }
+  .stat-actions-card { display: none; }
+  .dash-main { grid-template-columns: 1fr; }
+  .dash-right { position: static; }
 }
 @media (max-width: 768px) {
   .sidebar { position: fixed; left: -100%; top: 0; bottom: 0; z-index: 200; transition: left 0.25s; }
@@ -692,11 +706,11 @@ tr:hover td { background: var(--surface2); }
   .pages { padding: 14px; }
   .topbar { padding: 0 14px; }
   .topbar-search { max-width: none; flex: 1; }
-  .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-  .stat-val { font-size: 28px; }
+  .dash-top-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat-val { font-size: 36px; }
+  .dash-main { grid-template-columns: 1fr; }
 }
 @media (max-width: 480px) {
-  .stats-grid { grid-template-columns: 1fr 1fr; }
-  .form-2col  { grid-template-columns: 1fr; }
-  .topbar .btn-primary span { display: none; }
+  .dash-top-row { grid-template-columns: 1fr 1fr; }
+  .form-2col { grid-template-columns: 1fr; }
 }
