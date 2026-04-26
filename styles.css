@@ -247,7 +247,7 @@ button { cursor: pointer; }
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 20px 22px;
+  padding: 16px 18px;
   box-shadow: var(--shadow);
 }
 .stat-actions-card {
@@ -265,11 +265,11 @@ button { cursor: pointer; }
   margin-bottom: 16px;
 }
 .sab {
-  padding: 14px 8px;
+  padding: 18px 12px;
   border-radius: var(--radius);
   border: 1.5px solid var(--border);
   background: var(--surface);
-  font-size: 13px; font-weight: 700;
+  font-size: 14px; font-weight: 700;
   cursor: pointer; transition: all 0.12s;
   white-space: nowrap;
   box-shadow: var(--shadow);
@@ -281,15 +281,15 @@ button { cursor: pointer; }
 .sab.blue   { border-color: #BFDBFE; background: #EFF6FF; color: var(--accent); }
 .sab.purple { border-color: #DDD6FE; background: #F5F3FF; color: #7C3AED; }
 
-.stat-icon { font-size: 18px; margin-bottom: 10px; }
+.stat-icon { font-size: 15px; margin-bottom: 8px; }
 .stat-val {
   font-family: var(--font);
-  font-size: 52px;
+  font-size: 36px;
   font-weight: 800;
   line-height: 1;
   color: var(--text);
-  margin-bottom: 6px;
-  letter-spacing: -0.04em;
+  margin-bottom: 4px;
+  letter-spacing: -0.03em;
 }
 .stat-val.warn   { color: var(--orange); }
 .stat-val.danger { color: var(--red); }
