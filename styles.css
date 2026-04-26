@@ -769,19 +769,90 @@ tr:hover td { background: var(--surface2); }
   .dash-main { grid-template-columns: 1fr; }
   .dash-right { position: static; }
 }
+
+/* ══════════════════════════════════════════
+   BOTTOM NAV (mobile only)
+══════════════════════════════════════════ */
+.bottom-nav { display: none; }
+
 @media (max-width: 768px) {
-  .sidebar { position: fixed; left: -100%; top: 0; bottom: 0; z-index: 200; transition: left 0.25s; }
-  .sidebar.open { left: 0; }
-  .sidebar-overlay.open { display: block; }
-  .hamburger { display: flex; }
-  .pages { padding: 14px; }
-  .topbar { padding: 0 14px; }
+  /* Hide desktop sidebar + hamburger on mobile */
+  .sidebar { display: none; }
+  .hamburger { display: none; }
   .topbar-search { max-width: none; flex: 1; }
-  .dash-top-row { grid-template-columns: 1fr 1fr; gap: 8px; }
-  .stat-val { font-size: 36px; }
+  .topbar { padding: 0 12px; gap: 8px; }
+  .topbar-title { font-size: 16px; }
+
+  /* Show bottom nav */
+  .bottom-nav {
+    display: flex;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    z-index: 300;
+    padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+  }
+
+  /* Add padding so content doesn't hide behind bottom nav */
+  .pages { padding: 12px 12px 80px; }
+  .app { padding-bottom: 0; }
+
+  /* Mobile layout fixes */
+  .dash-top-row { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .stat-val { font-size: 28px; }
+  .stat-card { padding: 12px 14px; }
+  .stat-icon { font-size: 14px; margin-bottom: 6px; }
+  .stat-label { font-size: 11px; }
+  .dash-actions-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .sab { padding: 14px 8px; font-size: 12px; }
   .dash-main { grid-template-columns: 1fr; }
+  .form-2col { grid-template-columns: 1fr; }
+
+  /* Bigger touch targets on modals */
+  .modal { padding: 18px; border-radius: 20px 20px 0 0; }
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .btn-primary, .btn-ghost { padding: 12px 18px; font-size: 14px; }
+  .shelf-picker { grid-template-columns: repeat(4,1fr); gap: 5px; }
+  .shelf-btn { padding: 12px 4px; font-size: 11px; }
+  .bay-picker { grid-template-columns: repeat(4,1fr); }
+  .bay-btn { padding: 12px 4px; }
+  .qty-input { font-size: 36px; }
 }
+
 @media (max-width: 480px) {
   .dash-top-row { grid-template-columns: 1fr 1fr; }
-  .form-2col { grid-template-columns: 1fr; }
+  .topbar .btn-primary { padding: 8px 12px; font-size: 12px; }
+}
+
+/* ── Bottom nav buttons ── */
+.bnav-btn {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 3px; padding: 10px 4px 8px;
+  border: none; background: none;
+  color: var(--muted); font-size: 10px; font-weight: 600;
+  cursor: pointer; transition: color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.bnav-btn svg { width: 20px; height: 20px; }
+.bnav-btn.active { color: var(--accent); }
+.bnav-btn span { font-size: 10px; }
+
+.bnav-scan {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 3px; padding: 0 4px 8px;
+  border: none; background: none;
+  cursor: pointer; font-size: 10px; font-weight: 600;
+  color: var(--accent);
+  -webkit-tap-highlight-color: transparent;
+}
+.bnav-scan-circle {
+  width: 48px; height: 48px;
+  background: var(--text); color: #fff;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: -18px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }

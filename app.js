@@ -1061,10 +1061,13 @@ function showPage(name) {
   Object.values(scanners).forEach((_, id) => stopScanner(id));
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
   const page = document.getElementById('page-' + name);
   if (page) page.classList.add('active');
-  const btn = document.querySelector(`.nav-btn[data-page="${name}"]`);
+  const btn = document.querySelector('.nav-btn[data-page="' + name + '"]');
   if (btn) btn.classList.add('active');
+  const bnavBtn = document.querySelector('.bnav-btn[data-page="' + name + '"]');
+  if (bnavBtn) bnavBtn.classList.add('active');
   const titles = { dashboard:'Dashboard', inventory:'Inventory', map:'Warehouse Map', activity:'Activity Log' };
   document.getElementById('page-title').textContent = titles[name] || '';
   closeSidebar();
