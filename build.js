@@ -2,29 +2,33 @@ const fs = require('fs');
 
 const url = process.env.SUPABASE_URL || '';
 const key = process.env.SUPABASE_KEY || '';
+const pin = process.env.APP_PIN || '1234';
 
 if (!url || !key) {
-  console.error('ERROR: SUPABASE_URL and SUPABASE_KEY must be set in Vercel environment variables');
+  console.error('ERROR: SUPABASE_URL and SUPABASE_KEY must be set');
   process.exit(1);
 }
 
-// Inject credentials into app.js
 let appJs = fs.readFileSync('app.js', 'utf8');
+
+// Inject credentials
 appJs = appJs.replace(
   "var cfg = { url: '%%SUPABASE_URL%%', key: '%%SUPABASE_KEY%%' };",
   "var cfg = { url: '" + url + "', key: '" + key + "' };"
 );
 
-if (appJs.includes('%%SUPABASE_URL%%')) {
-  console.error('ERROR: Credential placeholders still present in app.js');
+// Inject PIN
+appJs = appJs.replace("'%%APP_PIN%%'", "'" + pin + "'");
+
+if (appJs.includes('%%SUPABASE_URL%%') || appJs.includes('%%APP_PIN%%')) {
+  console.error('ERROR: Placeholders still present!');
   process.exit(1);
 }
 
-// Copy all files to dist
 fs.mkdirSync('dist', { recursive: true });
-fs.writeFileSync('dist/app.js',     appJs);
-fs.copyFileSync('index.html',       'dist/index.html');
-fs.copyFileSync('styles.css',       'dist/styles.css');
+fs.writeFileSync('dist/app.js', appJs);
+fs.copyFileSync('index.html', 'dist/index.html');
+fs.copyFileSync('styles.css', 'dist/styles.css');
 
-console.log('✓ Credentials injected into app.js');
+console.log('✓ Credentials + PIN injected');
 console.log('✓ Build complete → dist/');

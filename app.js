@@ -2,6 +2,25 @@
 // WAREHOUSE IMS — app.js
 // ══════════════════════════════════════════════════════
 
+// ─── PIN AUTH ────────────────────────────────────────
+const CORRECT_PIN = '%%APP_PIN%%'; // injected by build.js
+const SESSION_KEY = 'wh_unlocked';
+
+function pinEnter() {
+  const input = document.getElementById('pin-input');
+  const val = input ? input.value : '';
+  if (val === CORRECT_PIN) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    document.getElementById('pin-screen').classList.add('hidden');
+    document.getElementById('loading-screen').style.display = 'flex';
+    initApp();
+  } else {
+    const err = document.getElementById('pin-error');
+    err.textContent = 'Incorrect password — try again';
+    if (input) { input.value = ''; input.classList.add('shake'); setTimeout(() => input.classList.remove('shake'), 400); input.focus(); }
+  }
+}
+
 // ─── STATE ───────────────────────────────────────────
 let sbClient = null;
 let items = [];
@@ -244,7 +263,16 @@ async function fixLocationCodes() {
 }
 
 // ─── INIT ─────────────────────────────────────────────
-(async () => {
+// Check if already unlocked this session
+(function() {
+  if (sessionStorage.getItem(SESSION_KEY) === '1') {
+    document.getElementById('pin-screen').classList.add('hidden');
+    document.getElementById('loading-screen').style.display = 'flex';
+    initApp();
+  }
+})();
+
+async function initApp() {
   try {
     document.getElementById('loading-status').textContent = 'Connecting to database…';
     var cfg = { url: '%%SUPABASE_URL%%', key: '%%SUPABASE_KEY%%' };
@@ -262,7 +290,7 @@ async function fixLocationCodes() {
     document.getElementById('loading-status').textContent = 'Connection failed: ' + (e.message || e);
     document.getElementById('loading-fill').style.background = '#DC2626';
   }
-})();
+}
 
 // ─── RENDER ALL ───────────────────────────────────────
 function renderAll() {

@@ -13,8 +13,32 @@
 </head>
 <body>
 
+<!-- PIN SCREEN -->
+<div id="pin-screen">
+  <div class="pin-inner">
+    <div class="pin-logo">
+      <span class="logo-mark">W</span>
+      <div>
+        <div class="pin-title">Warehouse</div>
+        <div class="pin-sub">Inventory Management</div>
+      </div>
+    </div>
+    <div class="pin-card">
+      <div class="pin-card-title">Enter password to access</div>
+      <div class="pin-input-wrap">
+        <input type="password" id="pin-input" class="pin-input" placeholder="Password"
+          onkeydown="if(event.key==='Enter')pinEnter()"
+          oninput="document.getElementById('pin-error').textContent=''"
+          autocomplete="current-password" autofocus/>
+        <button class="pin-submit" onclick="pinEnter()">→</button>
+      </div>
+      <div id="pin-error" class="pin-error"></div>
+    </div>
+  </div>
+</div>
+
 <!-- LOADING -->
-<div id="loading-screen">
+<div id="loading-screen" style="display:none">
   <div class="loading-inner">
     <div class="loading-logo">
       <span class="logo-mark">W</span>
