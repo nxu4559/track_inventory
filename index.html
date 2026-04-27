@@ -212,12 +212,15 @@
               <button class="pill" onclick="setInvFilter('sold',this)">Sold</button>
             </div>
           </div>
-          <div class="table-wrap">
+          <!-- Desktop table -->
+          <div class="table-wrap inv-table-wrap">
             <table>
               <thead><tr><th>Product</th><th>Code</th><th>Barcode</th><th>Status</th><th>Qty</th><th>Locations</th><th></th></tr></thead>
               <tbody id="inv-tbody"></tbody>
             </table>
           </div>
+          <!-- Mobile cards -->
+          <div class="inv-cards-wrap" id="inv-cards"></div>
         </div>
       </div>
 
