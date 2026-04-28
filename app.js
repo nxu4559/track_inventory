@@ -227,13 +227,14 @@ async function attemptConnect(attempt) {
       return;
     }
 
-    // Still waking up or network blip — retry
+    // Keep retrying — Supabase free tier can take up to 60s to wake up
+    var delay = attempt <= 2 ? 2000 : attempt <= 6 ? 3000 : 5000;
     if (attempt < maxAttempts) {
-      var delay = attempt <= 2 ? 2000 : attempt <= 6 ? 4000 : 5000;
       setTimeout(function() { attemptConnect(attempt + 1); }, delay);
     } else {
-      e('loading-status').textContent = 'Taking longer than usual — tap retry';
-      showRetryBtn();
+      // Ran out of attempts — auto reload after 5s and try again
+      e('loading-status').textContent = 'Still waking up — reloading automatically…';
+      setTimeout(function() { location.reload(); }, 5000);
     }
   }
 }
