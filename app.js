@@ -31,7 +31,7 @@ function pinEnter() {
   if (sessionStorage.getItem(SESSION_KEY) === '1') {
     document.getElementById('pin-screen').classList.add('hidden');
     document.getElementById('loading-screen').style.display = 'flex';
-    initApp();
+    setTimeout(function() { initApp(); }, 500);
   }
 })();
 
