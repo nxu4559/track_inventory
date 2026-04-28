@@ -196,14 +196,14 @@ async function initApp() {
 }
 
 async function attemptConnect(attempt) {
-  var maxAttempts = 12;
+  var maxAttempts = 20;
   var dotStates = ['', '.', '..', '...'];
 
   try {
     if (attempt === 1) {
       e('loading-status').textContent = 'Connecting…';
     } else {
-      e('loading-status').textContent = 'Waking up' + dotStates[attempt % 4] + ' (' + attempt + '/' + maxAttempts + ')';
+      e('loading-status').textContent = 'Waking up database' + dotStates[attempt % 4] + ' (' + attempt + '/' + maxAttempts + ')';
     }
 
     var check = await sbClient.from('items').select('id').limit(1);
@@ -229,10 +229,10 @@ async function attemptConnect(attempt) {
 
     // Still waking up or network blip — retry
     if (attempt < maxAttempts) {
-      var delay = attempt <= 3 ? 2000 : 4000; // faster first few tries
+      var delay = attempt <= 2 ? 2000 : attempt <= 6 ? 4000 : 5000;
       setTimeout(function() { attemptConnect(attempt + 1); }, delay);
     } else {
-      e('loading-status').textContent = '⚠ Cannot connect. Tap retry or check your connection.';
+      e('loading-status').textContent = 'Taking longer than usual — tap retry';
       showRetryBtn();
     }
   }
@@ -241,12 +241,26 @@ async function attemptConnect(attempt) {
 function showRetryBtn() {
   var inner = document.querySelector('.loading-inner');
   if (!inner || inner.querySelector('.retry-btn')) return;
+
   var btn = document.createElement('button');
   btn.className = 'retry-btn';
-  btn.textContent = '↺ Tap to Retry';
-  btn.style.cssText = 'margin-top:20px;padding:12px 28px;background:#1A1A18;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:-0.01em';
+  btn.style.cssText = 'margin-top:20px;padding:12px 28px;background:#1A1A18;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:-0.01em;min-width:180px';
   btn.onclick = function() { location.reload(); };
   inner.appendChild(btn);
+
+  // Auto-countdown and reload
+  var secs = 8;
+  function tick() {
+    btn.textContent = '↺ Retrying in ' + secs + 's…';
+    if (secs <= 0) {
+      btn.textContent = '↺ Retrying…';
+      location.reload();
+      return;
+    }
+    secs--;
+    setTimeout(tick, 1000);
+  }
+  tick();
 }
 
 // ─── RENDER ALL ───────────────────────────────────────
