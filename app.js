@@ -192,7 +192,8 @@ async function loadData() {
 async function initApp() {
   var cfg = { url: '%%SUPABASE_URL%%', key: '%%SUPABASE_KEY%%' };
   sbClient = window.supabase.createClient(cfg.url, cfg.key);
-  attemptConnect(1);
+  // Small delay to let the page and network fully initialize
+  setTimeout(function() { attemptConnect(1); }, 500);
 }
 
 async function attemptConnect(attempt) {
@@ -220,6 +221,9 @@ async function attemptConnect(attempt) {
   } catch(err) {
     var msg = err.message || String(err);
 
+    // Show exact error so we can debug
+    e('loading-status').textContent = 'Error: ' + msg.substring(0, 80);
+
     // Hard credential error — don't retry
     if (msg.includes('apikey') || msg.includes('JWT') || msg.includes('401') || msg.includes('403')) {
       e('loading-status').textContent = '⚠ API key error — check Vercel environment variables';
@@ -227,14 +231,14 @@ async function attemptConnect(attempt) {
       return;
     }
 
-    // Keep retrying — Supabase free tier can take up to 60s to wake up
+    // Keep retrying — never give up
     var delay = attempt <= 2 ? 2000 : attempt <= 6 ? 3000 : 5000;
     if (attempt < maxAttempts) {
       setTimeout(function() { attemptConnect(attempt + 1); }, delay);
     } else {
-      // Ran out of attempts — auto reload after 5s and try again
-      e('loading-status').textContent = 'Still waking up — reloading automatically…';
-      setTimeout(function() { location.reload(); }, 5000);
+      // Auto reload and try again
+      e('loading-status').textContent = 'Reloading automatically…';
+      setTimeout(function() { location.reload(); }, 3000);
     }
   }
 }
