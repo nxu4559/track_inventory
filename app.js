@@ -285,6 +285,7 @@ function renderDashRecentItems() {
       '<div class="dash-item-info">' +
         '<div class="dash-item-name">' + i.name + '</div>' +
         '<div class="dash-item-meta">' + i.sku + (i.barcode ? ' · ' + i.barcode : '') + '</div>' +
+        (i.notes ? '<div style="font-size:11px;color:var(--muted);font-style:italic;margin-top:2px">' + i.notes + '</div>' : '') +
       '</div>' +
       '<div class="dash-item-right">' +
         '<div class="dash-item-qty">' + totalQty(i) + ' <span>' + i.unit + '</span></div>' +
@@ -670,6 +671,8 @@ function openEditModal(id) {
       '<div class="form-field"><label>Unit</label><input id="edit-unit" value="' + item.unit + '"/></div>' +
       '<div class="form-field"><label>Low Stock Alert</label><input id="edit-thresh" type="number" value="' + item.thresh + '"/></div>' +
     '</div>' +
+    '<div class="form-field"><label>Notes / Memo</label>' +
+      '<textarea id="edit-notes" placeholder="e.g. supplier info, special handling…" style="min-height:72px">' + (item.notes || '') + '</textarea></div>' +
     '<div class="modal-foot">' +
       '<button class="btn-ghost" onclick="closeModal(\'modal-detail\')">Cancel</button>' +
       '<button class="btn-primary red" onclick="deleteItem(\'' + id + '\')">Delete</button>' +
@@ -694,7 +697,8 @@ async function saveEditItem(id) {
   _savingEdit = true;
   var btn = e('edit-save-btn');
   if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
-  item.name = name; item.sku = sku; item.barcode = barcode; item.unit = unit; item.thresh = thresh;
+  var notes = e('edit-notes') ? e('edit-notes').value.trim() : (item.notes || '');
+  item.name = name; item.sku = sku; item.barcode = barcode; item.unit = unit; item.thresh = thresh; item.notes = notes;
   await dbSaveItem(item);
   _savingEdit = false;
   closeModal('modal-detail');
@@ -778,6 +782,7 @@ function openDetailModal(id) {
     '</div>' +
     '<div style="font-size:40px;font-weight:800;line-height:1;margin-bottom:4px">' + totalQty(item) + '</div>' +
     '<div style="font-size:13px;color:var(--muted);margin-bottom:16px">' + item.unit + ' total</div>' +
+    (item.notes ? '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--text2);margin-bottom:16px;font-style:italic">📝 ' + item.notes + '</div>' : '') +
     '<div class="divider"></div>' +
     '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:10px">Locations</div>' +
     (item.locations || []).map(function(l) {
