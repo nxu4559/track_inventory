@@ -231,9 +231,6 @@ async function attemptConnect(attempt) {
   } catch(err) {
     var msg = err.message || String(err);
 
-    // Show exact error so we can debug
-    e('loading-status').textContent = 'Error: ' + msg.substring(0, 80);
-
     // Hard credential error — don't retry
     if (msg.includes('apikey') || msg.includes('JWT') || msg.includes('401') || msg.includes('403')) {
       e('loading-status').textContent = '⚠ API key error — check Vercel environment variables';
