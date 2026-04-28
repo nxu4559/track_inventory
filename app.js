@@ -145,7 +145,7 @@ async function dbSaveItem(item) {
   var payload = {
     name: item.name, sku: item.sku, barcode: item.barcode || '',
     unit: item.unit, thresh: item.thresh, sold: item.sold,
-    locations: item.locations
+    locations: item.locations, notes: item.notes || ''
   };
   if (item.id && item.id.length > 8) {
     await sbClient.from('items').update(payload).eq('id', item.id);
@@ -175,7 +175,7 @@ async function loadData() {
       id: r.id, name: r.name, sku: r.sku,
       barcode: r.barcode || '', unit: r.unit || 'pcs',
       thresh: r.thresh || 5, sold: r.sold || false,
-      locations: r.locations || []
+      locations: r.locations || [], notes: r.notes || ''
     };
   });
   activityLog = (results[1].data || []).map(function(r) {
