@@ -192,53 +192,48 @@ async function loadData() {
 async function initApp() {
   var cfg = { url: '%%SUPABASE_URL%%', key: '%%SUPABASE_KEY%%' };
   sbClient = window.supabase.createClient(cfg.url, cfg.key);
+  attemptConnect(1);
+}
 
-  // Retry loop — handles Supabase free tier waking up from pause
-  var maxAttempts = 10;
-  var attempt = 0;
+async function attemptConnect(attempt) {
+  var maxAttempts = 12;
+  var dotStates = ['', '.', '..', '...'];
 
-  while (attempt < maxAttempts) {
-    attempt++;
-    try {
-      var dots = '.'.repeat(attempt % 4);
-      e('loading-status').textContent = attempt === 1
-        ? 'Connecting to database…'
-        : 'Waking up database' + dots + ' (' + attempt + '/' + maxAttempts + ')';
+  try {
+    if (attempt === 1) {
+      e('loading-status').textContent = 'Connecting…';
+    } else {
+      e('loading-status').textContent = 'Waking up' + dotStates[attempt % 4] + ' (' + attempt + '/' + maxAttempts + ')';
+    }
 
-      var check = await sbClient.from('items').select('id').limit(1);
-      if (check.error) throw check.error;
+    var check = await sbClient.from('items').select('id').limit(1);
+    if (check.error) throw check.error;
 
-      // Connected!
-      e('loading-status').textContent = 'Loading inventory…';
-      await loadData();
-      e('loading-screen').classList.add('fade-out');
-      e('app').classList.remove('hidden');
-      setTimeout(function() { e('loading-screen').style.display = 'none'; }, 400);
-      renderAll();
-      return; // success — exit loop
+    // Success!
+    e('loading-status').textContent = 'Loading inventory…';
+    await loadData();
+    e('loading-screen').classList.add('fade-out');
+    e('app').classList.remove('hidden');
+    setTimeout(function() { e('loading-screen').style.display = 'none'; }, 400);
+    renderAll();
 
-    } catch(err) {
-      var msg = err.message || String(err);
+  } catch(err) {
+    var msg = err.message || String(err);
 
-      // Credentials issue — no point retrying
-      if (msg.includes('null') || msg.includes('undefined') || msg.includes('apikey') || msg.includes('JWT') || msg.includes('401')) {
-        e('loading-status').textContent = '⚠ Credential error — check Vercel env vars';
-        var fill = e('loading-fill');
-        if (fill) fill.style.background = '#DC2626';
-        showRetryBtn();
-        return;
-      }
+    // Hard credential error — don't retry
+    if (msg.includes('apikey') || msg.includes('JWT') || msg.includes('401') || msg.includes('403')) {
+      e('loading-status').textContent = '⚠ API key error — check Vercel environment variables';
+      showRetryBtn();
+      return;
+    }
 
-      // Still waking up — wait 4 seconds and try again
-      if (attempt < maxAttempts) {
-        await new Promise(function(res) { setTimeout(res, 4000); });
-      } else {
-        // All attempts failed
-        e('loading-status').textContent = '⚠ Could not connect. Check your internet connection or Supabase status.';
-        var fill2 = e('loading-fill');
-        if (fill2) fill2.style.background = '#DC2626';
-        showRetryBtn();
-      }
+    // Still waking up or network blip — retry
+    if (attempt < maxAttempts) {
+      var delay = attempt <= 3 ? 2000 : 4000; // faster first few tries
+      setTimeout(function() { attemptConnect(attempt + 1); }, delay);
+    } else {
+      e('loading-status').textContent = '⚠ Cannot connect. Tap retry or check your connection.';
+      showRetryBtn();
     }
   }
 }
@@ -248,8 +243,8 @@ function showRetryBtn() {
   if (!inner || inner.querySelector('.retry-btn')) return;
   var btn = document.createElement('button');
   btn.className = 'retry-btn';
-  btn.textContent = '↺ Retry';
-  btn.style.cssText = 'margin-top:16px;padding:10px 24px;background:#1A1A18;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit';
+  btn.textContent = '↺ Tap to Retry';
+  btn.style.cssText = 'margin-top:20px;padding:12px 28px;background:#1A1A18;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:-0.01em';
   btn.onclick = function() { location.reload(); };
   inner.appendChild(btn);
 }
