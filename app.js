@@ -299,11 +299,13 @@ function renderDashActivity() {
   if (!el) return;
   if (!activityLog.length) { el.innerHTML = '<div class="empty">No activity yet</div>'; return; }
   el.innerHTML = activityLog.slice(0, 8).map(function(a) {
+    var meta = [a.location, a.qty ? a.qty + ' pcs' : '', a.reason].filter(Boolean).join(' · ');
     return '<div class="act-row">' +
       '<div class="act-dot" style="background:' + actColor(a.type) + '"></div>' +
       '<div class="act-body">' +
         '<div class="act-title">' + actLabel(a.type) + ' · ' + (a.itemName || '') + '</div>' +
-        '<div class="act-meta">' + [a.location, a.qty ? a.qty + ' pcs' : '', a.reason].filter(Boolean).join(' · ') + '</div>' +
+        '<div class="act-meta">' + meta + '</div>' +
+        (a.notes ? '<div class="act-notes">' + a.notes + '</div>' : '') +
       '</div>' +
       '<div class="act-time">' + timeAgo(a.ts) + '</div>' +
     '</div>';
@@ -401,13 +403,19 @@ function renderActivity() {
   if (!el) return;
   if (!src.length) { el.innerHTML = '<div class="empty">No activity yet</div>'; return; }
   el.innerHTML = src.slice(0, 100).map(function(a) {
+    var meta = [a.location, a.qty ? a.qty + ' pcs' : '', a.reason].filter(Boolean).join(' · ');
+    var date = new Date(a.ts).toLocaleString();
     return '<div class="act-row">' +
       '<div class="act-dot" style="background:' + actColor(a.type) + '"></div>' +
       '<div class="act-body">' +
         '<div class="act-title">' + actLabel(a.type) + ' · ' + (a.itemName || '') + '</div>' +
-        '<div class="act-meta">' + [a.location, a.qty ? a.qty + ' pcs' : '', a.reason].filter(Boolean).join(' · ') + '</div>' +
+        '<div class="act-meta">' + meta + '</div>' +
+        (a.notes ? '<div class="act-notes">' + a.notes + '</div>' : '') +
       '</div>' +
-      '<div class="act-time">' + timeAgo(a.ts) + '</div>' +
+      '<div style="text-align:right;flex-shrink:0">' +
+        '<div class="act-time">' + timeAgo(a.ts) + '</div>' +
+        '<div style="font-size:10px;color:var(--muted2);margin-top:2px">' + date + '</div>' +
+      '</div>' +
     '</div>';
   }).join('');
 }
