@@ -503,12 +503,74 @@ function renderMap() {
 }
 
 function mapCellClick(loc) {
-  var here = items.filter(function(i) { return (i.locations || []).some(function(l) { return l.loc === loc; }); });
-  if (!here.length) { showToast(loc + ' — empty'); return; }
-  showToast(loc + ': ' + here.map(function(i) {
-    var l = (i.locations || []).find(function(l) { return l.loc === loc; });
-    return i.sku + ' (' + (l ? l.qty : 0) + ')';
-  }).join(', '));
+  var here = items.filter(function(i) {
+    return (i.locations || []).some(function(l) { return l.loc === loc; });
+  });
+
+  var d = document.createElement('div');
+
+  // Header
+  var head = '<div class="modal-head">';
+  head += '<div class="modal-title">' + loc + '</div>';
+  head += '<button class="modal-x" id="map-popup-close">&#x2715;</button>';
+  head += '</div>';
+
+  var body = '';
+  if (!here.length) {
+    body += '<div class="empty" style="padding:24px 0"><div class="empty-icon">&#x1F4ED;</div>This shelf is empty</div>';
+  } else {
+    body += '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:12px">';
+    body += here.length + ' product' + (here.length > 1 ? 's' : '') + ' stored here</div>';
+    here.forEach(function(item) {
+      var locData = (item.locations || []).find(function(l) { return l.loc === loc; });
+      var qty = locData ? locData.qty : 0;
+      var s = statusOf(item);
+      body += '<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">';
+      body += '<div style="flex:1;min-width:0">';
+      body += '<div style="font-size:14px;font-weight:700;margin-bottom:2px">' + item.name + '</div>';
+      body += '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted)">' + item.sku;
+      if (item.barcode) body += ' &middot; ' + item.barcode;
+      body += '</div></div>';
+      body += '<div style="text-align:right;flex-shrink:0">';
+      body += '<div style="font-size:22px;font-weight:800;line-height:1">' + qty + '</div>';
+      body += '<div style="font-size:11px;color:var(--muted)">' + item.unit + '</div>';
+      body += '</div>';
+      body += '<span class="tag ' + s + '">' + statusLabel(s) + '</span>';
+      body += '</div>';
+    });
+    body += '<div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap" id="map-popup-btns"></div>';
+  }
+
+  e('detail-content').innerHTML = head + body;
+  openModal('modal-detail');
+
+  // Close button
+  var closeBtn = document.getElementById('map-popup-close');
+  if (closeBtn) closeBtn.onclick = function() { closeModal('modal-detail'); };
+
+  // Action buttons (set via JS to avoid quote issues)
+  var btnsEl = document.getElementById('map-popup-btns');
+  if (btnsEl) {
+    here.forEach(function(item) {
+      var addBtn = document.createElement('button');
+      addBtn.className = 'btn-primary green';
+      addBtn.textContent = '+ Add';
+      addBtn.onclick = function() { closeModal('modal-detail'); openFlowWithItem('addstock', item.id); };
+      btnsEl.appendChild(addBtn);
+
+      var sellBtn = document.createElement('button');
+      sellBtn.className = 'btn-primary red';
+      sellBtn.textContent = '- Sell';
+      sellBtn.onclick = function() { closeModal('modal-detail'); openFlowWithItem('sell', item.id); };
+      btnsEl.appendChild(sellBtn);
+
+      var detailBtn = document.createElement('button');
+      detailBtn.className = 'btn-ghost';
+      detailBtn.textContent = 'Detail';
+      detailBtn.onclick = function() { closeModal('modal-detail'); openDetailModal(item.id); };
+      btnsEl.appendChild(detailBtn);
+    });
+  }
 }
 
 // ─── ADD ITEM ─────────────────────────────────────────
