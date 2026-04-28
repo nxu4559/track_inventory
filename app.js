@@ -3,7 +3,7 @@
 // ══════════════════════════════════════════════════════
 
 // ─── PIN AUTH ────────────────────────────────────────
-const CORRECT_PIN = '%%APP_PIN%%';
+const CORRECT_PIN = 'canaroma';
 const SESSION_KEY = 'wh_unlocked';
 
 function pinEnter() {
@@ -201,7 +201,7 @@ async function initApp() {
     showRetryBtn();
     return;
   }
-  var cfg = { url: '%%SUPABASE_URL%%', key: '%%SUPABASE_KEY%%' };
+  var cfg = { url: 'https://hvkicncqqudysarzflus.supabase.co', key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2a2ljbmNxcXVkeXNhcnpmbHVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NjEwNTUsImV4cCI6MjA5MjQzNzA1NX0.s_Jt9mDXmxS3B9csKQ7wEL0WEenKDFCIEwM1i2V8PkI' };
   sbClient = window.supabase.createClient(cfg.url, cfg.key);
   setTimeout(function() { attemptConnect(1); }, 300);
 }
