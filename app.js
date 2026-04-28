@@ -190,10 +190,20 @@ async function loadData() {
 
 // ─── INIT ─────────────────────────────────────────────
 async function initApp() {
+  // Wait for Supabase CDN library to be ready
+  var waited = 0;
+  while (!window.supabase && waited < 10000) {
+    await new Promise(function(r) { setTimeout(r, 200); });
+    waited += 200;
+  }
+  if (!window.supabase) {
+    e('loading-status').textContent = '⚠ Failed to load Supabase library — check internet connection';
+    showRetryBtn();
+    return;
+  }
   var cfg = { url: '%%SUPABASE_URL%%', key: '%%SUPABASE_KEY%%' };
   sbClient = window.supabase.createClient(cfg.url, cfg.key);
-  // Small delay to let the page and network fully initialize
-  setTimeout(function() { attemptConnect(1); }, 500);
+  setTimeout(function() { attemptConnect(1); }, 300);
 }
 
 async function attemptConnect(attempt) {
