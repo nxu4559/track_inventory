@@ -190,23 +190,68 @@ async function loadData() {
 
 // ─── INIT ─────────────────────────────────────────────
 async function initApp() {
-  try {
-    e('loading-status').textContent = 'Connecting to database…';
-    var cfg = { url: '%%SUPABASE_URL%%', key: '%%SUPABASE_KEY%%' };
-    sbClient = window.supabase.createClient(cfg.url, cfg.key);
-    var check = await sbClient.from('items').select('id').limit(1);
-    if (check.error) throw check.error;
-    e('loading-status').textContent = 'Loading inventory…';
-    await loadData();
-    e('loading-screen').classList.add('fade-out');
-    e('app').classList.remove('hidden');
-    setTimeout(function() { e('loading-screen').style.display = 'none'; }, 400);
-    renderAll();
-  } catch(err) {
-    e('loading-status').textContent = 'Connection failed: ' + (err.message || err);
-    var fill = e('loading-fill');
-    if (fill) fill.style.background = '#DC2626';
+  var cfg = { url: '%%SUPABASE_URL%%', key: '%%SUPABASE_KEY%%' };
+  sbClient = window.supabase.createClient(cfg.url, cfg.key);
+
+  // Retry loop — handles Supabase free tier waking up from pause
+  var maxAttempts = 10;
+  var attempt = 0;
+
+  while (attempt < maxAttempts) {
+    attempt++;
+    try {
+      var dots = '.'.repeat(attempt % 4);
+      e('loading-status').textContent = attempt === 1
+        ? 'Connecting to database…'
+        : 'Waking up database' + dots + ' (' + attempt + '/' + maxAttempts + ')';
+
+      var check = await sbClient.from('items').select('id').limit(1);
+      if (check.error) throw check.error;
+
+      // Connected!
+      e('loading-status').textContent = 'Loading inventory…';
+      await loadData();
+      e('loading-screen').classList.add('fade-out');
+      e('app').classList.remove('hidden');
+      setTimeout(function() { e('loading-screen').style.display = 'none'; }, 400);
+      renderAll();
+      return; // success — exit loop
+
+    } catch(err) {
+      var msg = err.message || String(err);
+
+      // Credentials issue — no point retrying
+      if (msg.includes('null') || msg.includes('undefined') || msg.includes('apikey') || msg.includes('JWT') || msg.includes('401')) {
+        e('loading-status').textContent = '⚠ Credential error — check Vercel env vars';
+        var fill = e('loading-fill');
+        if (fill) fill.style.background = '#DC2626';
+        showRetryBtn();
+        return;
+      }
+
+      // Still waking up — wait 4 seconds and try again
+      if (attempt < maxAttempts) {
+        await new Promise(function(res) { setTimeout(res, 4000); });
+      } else {
+        // All attempts failed
+        e('loading-status').textContent = '⚠ Could not connect. Check your internet connection or Supabase status.';
+        var fill2 = e('loading-fill');
+        if (fill2) fill2.style.background = '#DC2626';
+        showRetryBtn();
+      }
+    }
   }
+}
+
+function showRetryBtn() {
+  var inner = document.querySelector('.loading-inner');
+  if (!inner || inner.querySelector('.retry-btn')) return;
+  var btn = document.createElement('button');
+  btn.className = 'retry-btn';
+  btn.textContent = '↺ Retry';
+  btn.style.cssText = 'margin-top:16px;padding:10px 24px;background:#1A1A18;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit';
+  btn.onclick = function() { location.reload(); };
+  inner.appendChild(btn);
 }
 
 // ─── RENDER ALL ───────────────────────────────────────
@@ -600,13 +645,15 @@ async function saveQuickAdd() {
   closeModal('modal-quickadd');
   showToast('"' + name + '" added!', 'ok');
   _savingQuick = false;
+  _savingFlow  = false;
   if (btn) { btn.disabled = false; btn.textContent = 'Add & Continue'; }
-  if (quickAddReturnFlow) {
+  var returnFlow = quickAddReturnFlow;
+  quickAddReturnFlow = null;
+  if (returnFlow) {
     flowState.item = item;
     flowState.step = 2;
-    openModal('modal-' + quickAddReturnFlow);
-    renderFlow(quickAddReturnFlow);
-    quickAddReturnFlow = null;
+    openModal('modal-' + returnFlow);
+    renderFlow(returnFlow);
   }
 }
 
@@ -648,6 +695,7 @@ function openDetailModal(id) {
 
 // ─── FLOWS ────────────────────────────────────────────
 function openFlow(type) {
+  _savingFlow = false;
   flowState = { type:type, step:1, item:null, section:null, shelf:null, qty:1, location:null, reason:'Sold/Picked', notes:'', toSection:null, toBay:null };
   openModal('modal-' + type);
   renderFlow(type);
@@ -656,6 +704,7 @@ function openFlow(type) {
 function openFlowWithItem(type, id) {
   var item = items.find(function(i) { return i.id === id; });
   if (!item) return;
+  _savingFlow = false;
   flowState = { type:type, step:2, item:item, section:null, shelf:null, qty:1, location:null, reason:'Sold/Picked', notes:'', toSection:null, toBay:null };
   openModal('modal-' + type);
   renderFlow(type);
@@ -811,7 +860,9 @@ async function saveAddstock() {
   activityLog.unshift(entry);
   await Promise.all([dbSaveItem(s.item), dbLogActivity(entry)]);
   _savingFlow = false;
-  renderAll(); flowState.step = 5; renderAddstock();
+  renderAll();
+  flowState.step = 5;
+  renderAddstock();
 }
 
 // ── SELL ──
@@ -909,7 +960,9 @@ async function saveSell() {
   activityLog.unshift(entry);
   await Promise.all([dbSaveItem(s.item), dbLogActivity(entry)]);
   _savingFlow = false;
-  renderAll(); flowState.step = 4; renderSell();
+  renderAll();
+  flowState.step = 4;
+  renderSell();
 }
 
 // ── MOVE ──
@@ -996,7 +1049,9 @@ async function saveMove() {
   activityLog.unshift(entry);
   await Promise.all([dbSaveItem(s.item), dbLogActivity(entry)]);
   _savingFlow = false;
-  renderAll(); flowState.step = 4; renderMove();
+  renderAll();
+  flowState.step = 4;
+  renderMove();
 }
 
 // ── SUCCESS ──
@@ -1127,7 +1182,11 @@ function openModal(id) {
 }
 function closeModal(id) {
   Object.keys(scanners).forEach(function(k) { stopScanner(k); });
-  _savingFlow = false;
+  // Always reset ALL saving flags on close so next open starts fresh
+  _savingFlow  = false;
+  _saving      = false;
+  _savingQuick = false;
+  _savingEdit  = false;
   var el = e(id);
   if (!el) return;
   el.classList.remove('open');
