@@ -10,25 +10,13 @@ if (!url || !key) {
 }
 
 let appJs = fs.readFileSync('app.js', 'utf8');
-
-// Inject credentials
-appJs = appJs.replace(
-  "var cfg = { url: '%%SUPABASE_URL%%', key: '%%SUPABASE_KEY%%' };",
-  "var cfg = { url: '" + url + "', key: '" + key + "' };"
-);
-
-// Inject PIN
 appJs = appJs.replace("'%%APP_PIN%%'", "'" + pin + "'");
+appJs = appJs.replace("url: '%%SUPABASE_URL%%'", "url: '" + url + "'");
+appJs = appJs.replace("key: '%%SUPABASE_KEY%%'", "key: '" + key + "'");
 
-if (appJs.includes('%%SUPABASE_URL%%') || appJs.includes('%%APP_PIN%%')) {
-  console.error('ERROR: Placeholders still present!');
-  process.exit(1);
-}
+fs.mkdirSync('public', { recursive: true });
+fs.writeFileSync('public/app.js', appJs);
+fs.copyFileSync('index.html', 'public/index.html');
+fs.copyFileSync('styles.css', 'public/styles.css');
 
-fs.mkdirSync('dist', { recursive: true });
-fs.writeFileSync('dist/app.js', appJs);
-fs.copyFileSync('index.html', 'dist/index.html');
-fs.copyFileSync('styles.css', 'dist/styles.css');
-
-console.log('✓ Credentials + PIN injected');
-console.log('✓ Build complete → dist/');
+console.log('✓ Build complete → public/');
