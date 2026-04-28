@@ -2,9 +2,6 @@
     "name": "warehouse-ims",
     "version": "1.0.0",
     "scripts": {
-        "build": "node build.js"
-    },
-    "dependencies": {
-        "dotenv": "^17.4.2"
+      "build": "node build.js"
     }
-}
+  }

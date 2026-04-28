@@ -1,4 +1,4 @@
-require('dotenv').config();
+
 const fs = require('fs');
 
 const url = process.env.SUPABASE_URL || '';
