@@ -334,7 +334,7 @@ function renderDashActivity() {
       '<div class="act-body">' +
         '<div class="act-title">' + actLabel(a.type) + ' · ' + (a.itemName || '') + '</div>' +
         '<div class="act-meta">' + meta + '</div>' +
-        (skuPart ? '<div class="act-meta" style="color:var(--muted2);font-family:var(--font-mono);font-size:11px">' + skuPart + '</div>' : '') +
+        (skuPart ? '<div style="font-size:10px;color:var(--muted2);font-family:var(--font-mono);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px">' + skuPart + '</div>' : '') +
         (a.notes ? '<div class="act-notes">' + a.notes + '</div>' : '') +
       '</div>' +
       '<div class="act-time">' + timeAgo(a.ts) + '</div>' +
@@ -442,7 +442,7 @@ function renderActivity() {
       '<div class="act-body">' +
         '<div class="act-title">' + actLabel(a.type) + ' · ' + (a.itemName || '') + '</div>' +
         '<div class="act-meta">' + meta + '</div>' +
-        (skuPart ? '<div class="act-meta" style="color:var(--muted2);font-family:var(--font-mono);font-size:11px">' + skuPart + '</div>' : '') +
+        (skuPart ? '<div style="font-size:10px;color:var(--muted2);font-family:var(--font-mono);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px">' + skuPart + '</div>' : '') +
         (a.notes ? '<div class="act-notes">' + a.notes + '</div>' : '') +
       '<div style="text-align:right;flex-shrink:0">' +
         '<div class="act-time">' + timeAgo(a.ts) + '</div>' +
