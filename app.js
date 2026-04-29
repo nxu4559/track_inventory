@@ -509,7 +509,7 @@ function renderMap() {
   html += '</div>';
 
   // C (side access)
-  html += '<div style="margin-left:60px"><div class="map-section-label" style="margin-bottom:8px">C <span style="font-size:11px;font-weight:400;color:var(--muted)">(side)</span></div>';
+  html += '<div style="margin-left:60px;align-self:center"><div class="map-section-label" style="margin-bottom:8px">C <span style="font-size:11px;font-weight:400;color:var(--muted)">(side)</span></div>';
   html += bayLabels(['C1','C2','C3','C4'], CELL_W_C);
   ['#01','#02','#03','#04'].forEach(function(row) {
     html += '<div class="map-row"><div class="map-row-label">' + row + '</div>';
