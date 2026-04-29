@@ -486,7 +486,7 @@ function renderMap() {
     }).join('') + '</div>';
   }
 
-  var html = '<div style="display:flex;gap:28px;flex-wrap:nowrap;margin-bottom:20px">';
+  var html = '<div style="display:flex;gap:8px;flex-wrap:nowrap;margin-bottom:20px">';
 
   // A
   html += '<div><div class="map-section-label" style="margin-bottom:8px">A</div>';
