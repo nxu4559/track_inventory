@@ -326,15 +326,14 @@ function renderDashActivity() {
   if (!el) return;
   if (!activityLog.length) { el.innerHTML = '<div class="empty">No activity yet</div>'; return; }
   el.innerHTML = activityLog.slice(0, 8).map(function(a) {
-    var meta = [a.location, a.qty ? a.qty + ' pcs' : '', a.reason].filter(Boolean).join(' · ');
     var item = items.find(function(i) { return i.id === a.itemId; });
-    var skuPart = item ? [item.sku, item.barcode].filter(Boolean).join(' · ') : '';
+    var sku = item ? item.sku : '';
+    var meta = [sku, a.location, a.qty ? a.qty + ' pcs' : '', a.reason].filter(Boolean).join(' · ');
     return '<div class="act-row">' +
       '<div class="act-dot" style="background:' + actColor(a.type) + '"></div>' +
       '<div class="act-body">' +
         '<div class="act-title">' + actLabel(a.type) + ' · ' + (a.itemName || '') + '</div>' +
         '<div class="act-meta">' + meta + '</div>' +
-        (skuPart ? '<div style="font-size:10px;color:var(--muted2);font-family:var(--font-mono);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px">' + skuPart + '</div>' : '') +
         (a.notes ? '<div class="act-notes">' + a.notes + '</div>' : '') +
       '</div>' +
       '<div class="act-time">' + timeAgo(a.ts) + '</div>' +
@@ -433,17 +432,17 @@ function renderActivity() {
   if (!el) return;
   if (!src.length) { el.innerHTML = '<div class="empty">No activity yet</div>'; return; }
   el.innerHTML = src.slice(0, 100).map(function(a) {
-    var meta = [a.location, a.qty ? a.qty + ' pcs' : '', a.reason].filter(Boolean).join(' · ');
-    var date = new Date(a.ts).toLocaleString();
     var item = items.find(function(i) { return i.id === a.itemId; });
-    var skuPart = item ? [item.sku, item.barcode].filter(Boolean).join(' · ') : '';
+    var sku = item ? item.sku : '';
+    var meta = [sku, a.location, a.qty ? a.qty + ' pcs' : '', a.reason].filter(Boolean).join(' · ');
+    var date = new Date(a.ts).toLocaleString();
     return '<div class="act-row">' +
       '<div class="act-dot" style="background:' + actColor(a.type) + '"></div>' +
       '<div class="act-body">' +
         '<div class="act-title">' + actLabel(a.type) + ' · ' + (a.itemName || '') + '</div>' +
         '<div class="act-meta">' + meta + '</div>' +
-        (skuPart ? '<div style="font-size:10px;color:var(--muted2);font-family:var(--font-mono);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px">' + skuPart + '</div>' : '') +
         (a.notes ? '<div class="act-notes">' + a.notes + '</div>' : '') +
+      '</div>' +
       '<div style="text-align:right;flex-shrink:0">' +
         '<div class="act-time">' + timeAgo(a.ts) + '</div>' +
         '<div style="font-size:10px;color:var(--muted2);margin-top:2px">' + date + '</div>' +
