@@ -332,8 +332,8 @@ function renderDashActivity() {
     return '<div class="act-row">' +
       '<div class="act-dot" style="background:' + actColor(a.type) + '"></div>' +
       '<div class="act-body">' +
-        '<div class="act-title">' + actLabel(a.type) + ' · ' + (a.itemName || '') + '</div>' +
-        '<div class="act-meta">' + meta + '</div>' +
+      '<div class="act-title">' + actLabel(a.type) + ' · ' + sku + '</div>' +
+      '<div class="act-meta">' + (a.itemName || '') + ' · ' + [a.location, a.qty ? a.qty + ' pcs' : '', a.reason].filter(Boolean).join(' · ') + '</div>' +
         (a.notes ? '<div class="act-notes">' + a.notes + '</div>' : '') +
       '</div>' +
       '<div class="act-time">' + timeAgo(a.ts) + '</div>' +
@@ -439,8 +439,8 @@ function renderActivity() {
     return '<div class="act-row">' +
       '<div class="act-dot" style="background:' + actColor(a.type) + '"></div>' +
       '<div class="act-body">' +
-        '<div class="act-title">' + actLabel(a.type) + ' · ' + (a.itemName || '') + '</div>' +
-        '<div class="act-meta">' + meta + '</div>' +
+      '<div class="act-title">' + actLabel(a.type) + ' · ' + sku + '</div>' +
+      '<div class="act-meta">' + (a.itemName || '') + ' · ' + [a.location, a.qty ? a.qty + ' pcs' : '', a.reason].filter(Boolean).join(' · ') + '</div>' +
         (a.notes ? '<div class="act-notes">' + a.notes + '</div>' : '') +
       '</div>' +
       '<div style="text-align:right;flex-shrink:0">' +
