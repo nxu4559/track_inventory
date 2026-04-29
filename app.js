@@ -463,7 +463,7 @@ function renderMap() {
   var el = e('map-grid');
   if (!el) return;
 
-  var CELL_W_AB = 90, CELL_W_C = 68, CELL_W_D = 170, CELL_H = 44;
+  var CELL_W_AB = 90, CELL_W_C = 44, CELL_W_D = 170, CELL_H = 44, CELL_H_C = 80;
 
   function cellClass(loc) {
     var qty = items.flatMap(function(i) {
@@ -513,7 +513,7 @@ function renderMap() {
   html += bayLabels(['C1','C2','C3','C4'], CELL_W_C);
   ['#01','#02','#03','#04'].forEach(function(row) {
     html += '<div class="map-row"><div class="map-row-label">' + row + '</div>';
-    ['C1','C2','C3','C4'].forEach(function(col) { html += makeCell('M08' + col + row, CELL_W_C, CELL_H); });
+    ['C1','C2','C3','C4'].forEach(function(col) { html += makeCell('M08' + col + row, CELL_W_C, CELL_H_C); });
     html += '</div>';
   });
   html += '</div>';
