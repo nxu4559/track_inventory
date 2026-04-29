@@ -463,7 +463,7 @@ function renderMap() {
   var el = e('map-grid');
   if (!el) return;
 
-  var CELL_W_AB = 200, CELL_W_C = 44, CELL_W_D = 170, CELL_H = 44, CELL_H_C = 80;
+  var CELL_W_AB = 170, CELL_W_C = 44, CELL_W_D = 170, CELL_H = 44, CELL_H_C = 80;
 
   function cellClass(loc) {
     var qty = items.flatMap(function(i) {
