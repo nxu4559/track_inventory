@@ -386,13 +386,13 @@ button { cursor: pointer; }
 .alert-loc  { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
 
 .act-row {
-  display: flex; align-items: center; gap: 12px;
+  display: flex; align-items: flex-start; gap: 12px;
   padding: 11px 18px;
   border-bottom: 1px solid var(--border);
 }
 .act-row:last-child { border-bottom: none; }
 .act-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.act-body { flex: 1; }
+.act-body { flex: 1; min-width: 0;  }
 .act-title { font-size: 13px; font-weight: 600; }
 .act-meta  { font-size: 12px; color: var(--muted); margin-top: 1px; }
 .act-time  { font-size: 11px; color: var(--muted2); flex-shrink: 0; }
