@@ -525,7 +525,7 @@ function renderMap() {
   // D
   html += '<div><div class="map-section-label" style="margin-bottom:8px">D</div>';
   html += bayLabels(['#01','#02','#03','#04'], CELL_W_D);
-  ['4','3','2','1'].forEach(function(row) {
+  ['1','2','3','4'].forEach(function(row) {
     html += '<div class="map-row"><div class="map-row-label">D' + row + '</div>';
     ['#01','#02','#03','#04'].forEach(function(bay) { html += makeCell('M08D' + row + bay, CELL_W_D, CELL_H); });
     html += '</div>';
