@@ -412,8 +412,44 @@ function setInvFilter(f, btn) {
 }
 
 function globalSearch(v) {
-  if (!v.trim()) { renderInvTable(); return; }
+  if (!v.trim()) { 
+    renderInvTable(); 
+    renderActivity();
+    return; 
+  }
   var terms = v.toLowerCase().trim().split(/\s+/);
+  
+  // Check if activity page is active
+  var activityPage = e('page-activity');
+  if (activityPage && activityPage.classList.contains('active')) {
+    var filteredActivity = activityLog.filter(function(a) {
+      var hay = [a.itemName || '', a.location || '', a.reason || '', a.notes || '', actLabel(a.type)].join(' ').toLowerCase();
+      return terms.every(function(t) { return hay.includes(t); });
+    });
+    var el = e('activity-list');
+    if (!filteredActivity.length) { el.innerHTML = '<div class="empty">No activity found</div>'; return; }
+    el.innerHTML = filteredActivity.slice(0, 100).map(function(a) {
+      var item = items.find(function(i) { return i.id === a.itemId; });
+      var sku = item ? item.sku : '';
+      var meta = [sku, a.location, a.qty ? a.qty + ' pcs' : '', a.reason].filter(Boolean).join(' · ');
+      var date = new Date(a.ts).toLocaleString();
+      return '<div class="act-row">' +
+        '<div class="act-dot" style="background:' + actColor(a.type) + '"></div>' +
+        '<div class="act-body">' +
+          '<div class="act-title">' + actLabel(a.type) + ' · ' + (a.itemName || '') + '</div>' +
+          '<div class="act-meta">' + meta + '</div>' +
+          (a.notes ? '<div class="act-notes">' + a.notes + '</div>' : '') +
+        '</div>' +
+        '<div style="text-align:right;flex-shrink:0">' +
+          '<div class="act-time">' + timeAgo(a.ts) + '</div>' +
+          '<div style="font-size:10px;color:var(--muted2);margin-top:2px">' + date + '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+    return;
+  }
+
+  // Default — filter inventory
   var results = items.filter(function(item) {
     var hay = [item.name, item.sku, item.barcode || '',
       (item.locations || []).map(function(l) { return l.loc; }).join(' '),
