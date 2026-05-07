@@ -451,6 +451,31 @@ function globalSearch(v) {
     return;
   }
 
+    // Check if map page is active
+  var mapPage = e('page-map');
+  if (mapPage && mapPage.classList.contains('active')) {
+    var matchedItems = items.filter(function(item) {
+      var hay = [item.name, item.sku, item.barcode || ''].join(' ').toLowerCase();
+      return terms.every(function(t) { return hay.includes(t); });
+    });
+    // Highlight matched locations on map
+    var matchedLocs = new Set();
+    matchedItems.forEach(function(item) {
+      (item.locations || []).forEach(function(l) { matchedLocs.add(l.loc); });
+    });
+    document.querySelectorAll('.map-cell').forEach(function(cell) {
+      var loc = cell.getAttribute('title');
+      if (matchedLocs.has(loc)) {
+        cell.style.outline = '3px solid var(--accent)';
+        cell.style.zIndex = '2';
+      } else {
+        cell.style.outline = '';
+        cell.style.zIndex = '';
+      }
+    });
+    return;
+  }
+
   // Default — filter inventory
   var results = items.filter(function(item) {
     var hay = [item.name, item.sku, item.barcode || '',
