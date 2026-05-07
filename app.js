@@ -822,8 +822,17 @@ function openDetailModal(id) {
       '</div>';
     }).join('') +
     (!(item.locations || []).length ? '<div style="color:var(--muted);font-size:13px">No locations yet</div>' : '') +
-    '<div class="divider"></div>' +
-    '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+  '<div class="divider"></div>' +
+  '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:10px">Activity History</div>' +
+  activityLog.filter(function (a) { return a.itemId === item.id; }).slice(0, 10).map(function (a) {
+    return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px">' +
+      '<div><span style="font-weight:600">' + actLabel(a.type) + '</span> · ' + (a.location || '') + (a.qty ? ' · ' + a.qty + ' pcs' : '') + (a.notes ? '<div style="color:var(--accent);font-style:italic">' + a.notes + '</div>' : '') + '</div>' +
+      '<div style="color:var(--muted2);text-align:right;flex-shrink:0;margin-left:8px">' + timeAgo(a.ts) + '</div>' +
+      '</div>';
+  }).join('') +
+  (activityLog.filter(function (a) { return a.itemId === item.id; }).length === 0 ? '<div style="color:var(--muted);font-size:13px">No activity yet</div>' : '') +
+  '<div class="divider"></div>' +
+  '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
       '<button class="btn-primary green" onclick="closeModal(\'modal-detail\');openFlowWithItem(\'addstock\',\'' + id + '\')">+ Add Stock</button>' +
       '<button class="btn-primary red"   onclick="closeModal(\'modal-detail\');openFlowWithItem(\'sell\',\'' + id + '\')">Sell</button>' +
       '<button class="btn-ghost"         onclick="closeModal(\'modal-detail\');openFlowWithItem(\'move\',\'' + id + '\')">Move</button>' +
