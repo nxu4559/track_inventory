@@ -423,7 +423,9 @@ function globalSearch(v) {
   var activityPage = e('page-activity');
   if (activityPage && activityPage.classList.contains('active')) {
     var filteredActivity = activityLog.filter(function(a) {
-      var hay = [a.itemName || '', a.location || '', a.reason || '', a.notes || '', actLabel(a.type)].join(' ').toLowerCase();
+      var item = items.find(function (i) { return i.id === a.itemId; });
+      var sku = item ? item.sku : '';
+      var hay = [a.itemName || '', sku, a.location || '', a.reason || '', a.notes || '', actLabel(a.type)].join(' ').toLowerCase();
       return terms.every(function(t) { return hay.includes(t); });
     });
     var el = e('activity-list');
