@@ -421,7 +421,6 @@ function globalSearch(v) {
     ].join(' ').toLowerCase();
     return terms.every(function(t) { return hay.includes(t); });
   });
-  showPage('inventory');
   renderInvTable(results);
 }
 
