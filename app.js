@@ -557,7 +557,7 @@ function renderMap() {
 
   var html = '<div style="display:flex;gap:8px;flex-wrap:nowrap;align-items:flex-start;margin-bottom:20px">';
 
-  // M07 wrapper — stacked B on top, A on bottom
+  // M07 column — B on top, A on bottom
   html += '<div style="display:flex;flex-direction:column;gap:8px">';
 
   // M07B
@@ -580,9 +580,9 @@ function renderMap() {
   });
   html += '</div>';
 
-  html += '</div>'; // end M07 wrapper
+  html += '</div>'; // end M07 column
 
-  // A
+  // M08A
   html += '<div><div class="map-section-label" style="margin-bottom:8px">A</div>';
   html += bayLabels(['#01', '#02'], CELL_W_AB);
   ['4', '3', '2', '1'].forEach(function (row) {
@@ -592,7 +592,7 @@ function renderMap() {
   });
   html += '</div>';
 
-  // B
+  // M08B
   html += '<div><div class="map-section-label" style="margin-bottom:8px">B</div>';
   html += bayLabels(['#01', '#02'], CELL_W_AB);
   ['4', '3', '2', '1'].forEach(function (row) {
@@ -602,7 +602,7 @@ function renderMap() {
   });
   html += '</div>';
 
-  // C (side access)
+  // M08C
   html += '<div style="margin-left:60px;align-self:center"><div class="map-section-label" style="margin-bottom:8px">C <span style="font-size:11px;font-weight:400;color:var(--muted)">(side)</span></div>';
   html += bayLabels(['C1', 'C2', 'C3', 'C4'], CELL_W_C);
   ['#01', '#02', '#03', '#04'].forEach(function (row) {
@@ -611,7 +611,8 @@ function renderMap() {
     html += '</div>';
   });
   html += '</div>';
-  html += '</div>';
+
+  html += '</div>'; // end top row
 
   // Walking aisle
   html += '<div class="map-aisle-gap"><div class="map-aisle-gap-line"></div><div class="map-aisle-gap-text">— walking aisle —</div><div class="map-aisle-gap-line"></div></div>';
