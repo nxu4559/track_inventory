@@ -555,8 +555,6 @@ function renderMap() {
     }).join('') + '</div>';
   }
 
-  var html = '<div style="display:flex;gap:8px;flex-wrap:nowrap;margin-bottom:20px">';
-
   var html = '<div style="display:flex;gap:8px;flex-wrap:nowrap;align-items:flex-start;margin-bottom:20px">';
 
   // M07 wrapper — stacked B on top, A on bottom
@@ -583,9 +581,6 @@ function renderMap() {
   html += '</div>';
 
   html += '</div>'; // end M07 wrapper
-
-  // M08A
-  html += '<div>...existing M08A code...';
 
   // A
   html += '<div><div class="map-section-label" style="margin-bottom:8px">A</div>';
