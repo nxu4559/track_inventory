@@ -61,8 +61,8 @@ var ZONES = {
   M07: {
     label: 'M07',
     aisles: {
-      A: { rows: ['1','2','3','4'], bays: ['#01','#02','#03','#04'] },
-      B: { rows: ['1','2','3','4'], bays: ['#01','#02','#03','#04'] }
+      A: { rows: ['1','2','3','4'], bays: ['#01','#02','#03'] },
+      B: { rows: ['1','2','3','4'], bays: ['#01','#02','#03'] }
     }
   }
 };
@@ -563,7 +563,7 @@ function renderMap() {
   // M07B
   html += '<div><div class="map-section-label" style="margin-bottom:8px">M07B</div>';
   html += bayLabels(['B1', 'B2', 'B3', 'B4'], CELL_W_C);
-  ['#01', '#02', '#03', '#04'].forEach(function (row) {
+  ['#01', '#02', '#03'].forEach(function (row) {
     html += '<div class="map-row"><div class="map-row-label">' + row + '</div>';
     ['B1', 'B2', 'B3', 'B4'].forEach(function (col) { html += makeCell('M07' + col + row, CELL_W_C, CELL_H_C); });
     html += '</div>';
@@ -573,7 +573,7 @@ function renderMap() {
   // M07A
   html += '<div><div class="map-section-label" style="margin-bottom:8px">M07A</div>';
   html += bayLabels(['A1', 'A2', 'A3', 'A4'], CELL_W_C);
-  ['#01', '#02', '#03', '#04'].forEach(function (row) {
+  ['#01', '#02', '#03'].forEach(function (row) {
     html += '<div class="map-row"><div class="map-row-label">' + row + '</div>';
     ['A1', 'A2', 'A3', 'A4'].forEach(function (col) { html += makeCell('M07' + col + row, CELL_W_C, CELL_H_C); });
     html += '</div>';
@@ -617,8 +617,8 @@ function renderMap() {
   // Walking aisle
   html += '<div class="map-aisle-gap"><div class="map-aisle-gap-line"></div><div class="map-aisle-gap-text">— walking aisle —</div><div class="map-aisle-gap-line"></div></div>';
 
-  // D
-  html += '<div><div class="map-section-label" style="margin-bottom:8px">D</div>';
+  // 08MD
+  html += '<div style="margin-left:210px"><div class="map-section-label" style="margin-bottom:8px">D</div>';
   html += bayLabels(['#01', '#02', '#03', '#04'], CELL_W_D);
   ['1', '2', '3', '4'].forEach(function (row) {
     html += '<div class="map-row"><div class="map-row-label">D' + row + '</div>';
