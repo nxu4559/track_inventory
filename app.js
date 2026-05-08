@@ -55,9 +55,16 @@ var ZONES = {
       C: { rows: ['1','2','3','4'], bays: ['#01','#02','#03','#04'] },
       D: { rows: ['1','2','3','4'], bays: ['#01','#02','#03','#04'] }
     }
-  }
+  
+  },
   // Add more zones here:
-  // M07: { label:'M07', aisles: { A: { rows:['1','2','3','4'], bays:['#01','#02'] } } }
+  M07: {
+    label: 'M07',
+    aisles: {
+      A: { rows: ['1','2','3','4'], bays: ['#01','#02','#03','#04'] },
+      B: { rows: ['1','2','3','4'], bays: ['#01','#02','#03','#04'] }
+    }
+  }
 };
 
 function getAllShelves() {
@@ -528,9 +535,9 @@ function renderMap() {
   var CELL_W_AB = 160, CELL_W_C = 44, CELL_W_D = 170, CELL_H = 44, CELL_H_C = 80;
 
   function cellClass(loc) {
-    var qty = items.flatMap(function(i) {
-      return (i.locations || []).filter(function(l) { return l.loc === loc; });
-    }).reduce(function(s, l) { return s + l.qty; }, 0);
+    var qty = items.flatMap(function (i) {
+      return (i.locations || []).filter(function (l) { return l.loc === loc; });
+    }).reduce(function (s, l) { return s + l.qty; }, 0);
     return { qty: qty, cls: qty > 0 ? 'has' : '' };
   }
 
@@ -539,43 +546,73 @@ function renderMap() {
     return '<div class="map-cell ' + info.cls + '" style="width:' + w + 'px;height:' + h + 'px" onclick="mapCellClick(\'' + loc + '\')" title="' + loc + '">' +
       '<div class="map-cell-loc">' + loc + '</div>' +
       '<div class="map-cell-qty">' + (info.qty || '·') + '</div>' +
-    '</div>';
+      '</div>';
   }
 
   function bayLabels(bays, cellW) {
-    return '<div class="map-bay-labels">' + bays.map(function(b) {
+    return '<div class="map-bay-labels">' + bays.map(function (b) {
       return '<div class="map-bay-label" style="width:' + cellW + 'px">' + b + '</div>';
     }).join('') + '</div>';
   }
 
   var html = '<div style="display:flex;gap:8px;flex-wrap:nowrap;margin-bottom:20px">';
 
+  var html = '<div style="display:flex;gap:8px;flex-wrap:nowrap;align-items:flex-start;margin-bottom:20px">';
+
+  // M07 wrapper — stacked B on top, A on bottom
+  html += '<div style="display:flex;flex-direction:column;gap:8px">';
+
+  // M07B
+  html += '<div><div class="map-section-label" style="margin-bottom:8px">M07B</div>';
+  html += bayLabels(['B1', 'B2', 'B3', 'B4'], CELL_W_C);
+  ['#01', '#02', '#03', '#04'].forEach(function (row) {
+    html += '<div class="map-row"><div class="map-row-label">' + row + '</div>';
+    ['B1', 'B2', 'B3', 'B4'].forEach(function (col) { html += makeCell('M07' + col + row, CELL_W_C, CELL_H_C); });
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // M07A
+  html += '<div><div class="map-section-label" style="margin-bottom:8px">M07A</div>';
+  html += bayLabels(['A1', 'A2', 'A3', 'A4'], CELL_W_C);
+  ['#01', '#02', '#03', '#04'].forEach(function (row) {
+    html += '<div class="map-row"><div class="map-row-label">' + row + '</div>';
+    ['A1', 'A2', 'A3', 'A4'].forEach(function (col) { html += makeCell('M07' + col + row, CELL_W_C, CELL_H_C); });
+    html += '</div>';
+  });
+  html += '</div>';
+
+  html += '</div>'; // end M07 wrapper
+
+  // M08A
+  html += '<div>...existing M08A code...';
+
   // A
   html += '<div><div class="map-section-label" style="margin-bottom:8px">A</div>';
-  html += bayLabels(['#01','#02'], CELL_W_AB);
-  ['4','3','2','1'].forEach(function(row) {
+  html += bayLabels(['#01', '#02'], CELL_W_AB);
+  ['4', '3', '2', '1'].forEach(function (row) {
     html += '<div class="map-row"><div class="map-row-label">A' + row + '</div>';
-    ['#01','#02'].forEach(function(bay) { html += makeCell('M08A' + row + bay, CELL_W_AB, CELL_H); });
+    ['#01', '#02'].forEach(function (bay) { html += makeCell('M08A' + row + bay, CELL_W_AB, CELL_H); });
     html += '</div>';
   });
   html += '</div>';
 
   // B
   html += '<div><div class="map-section-label" style="margin-bottom:8px">B</div>';
-  html += bayLabels(['#01','#02'], CELL_W_AB);
-  ['4','3','2','1'].forEach(function(row) {
+  html += bayLabels(['#01', '#02'], CELL_W_AB);
+  ['4', '3', '2', '1'].forEach(function (row) {
     html += '<div class="map-row"><div class="map-row-label">B' + row + '</div>';
-    ['#01','#02'].forEach(function(bay) { html += makeCell('M08B' + row + bay, CELL_W_AB, CELL_H); });
+    ['#01', '#02'].forEach(function (bay) { html += makeCell('M08B' + row + bay, CELL_W_AB, CELL_H); });
     html += '</div>';
   });
   html += '</div>';
 
   // C (side access)
   html += '<div style="margin-left:60px;align-self:center"><div class="map-section-label" style="margin-bottom:8px">C <span style="font-size:11px;font-weight:400;color:var(--muted)">(side)</span></div>';
-  html += bayLabels(['C1','C2','C3','C4'], CELL_W_C);
-  ['#01','#02','#03','#04'].forEach(function(row) {
+  html += bayLabels(['C1', 'C2', 'C3', 'C4'], CELL_W_C);
+  ['#01', '#02', '#03', '#04'].forEach(function (row) {
     html += '<div class="map-row"><div class="map-row-label">' + row + '</div>';
-    ['C1','C2','C3','C4'].forEach(function(col) { html += makeCell('M08' + col + row, CELL_W_C, CELL_H_C); });
+    ['C1', 'C2', 'C3', 'C4'].forEach(function (col) { html += makeCell('M08' + col + row, CELL_W_C, CELL_H_C); });
     html += '</div>';
   });
   html += '</div>';
@@ -586,10 +623,10 @@ function renderMap() {
 
   // D
   html += '<div><div class="map-section-label" style="margin-bottom:8px">D</div>';
-  html += bayLabels(['#01','#02','#03','#04'], CELL_W_D);
-  ['1','2','3','4'].forEach(function(row) {
+  html += bayLabels(['#01', '#02', '#03', '#04'], CELL_W_D);
+  ['1', '2', '3', '4'].forEach(function (row) {
     html += '<div class="map-row"><div class="map-row-label">D' + row + '</div>';
-    ['#01','#02','#03','#04'].forEach(function(bay) { html += makeCell('M08D' + row + bay, CELL_W_D, CELL_H); });
+    ['#01', '#02', '#03', '#04'].forEach(function (bay) { html += makeCell('M08D' + row + bay, CELL_W_D, CELL_H); });
     html += '</div>';
   });
   html += '<div style="text-align:center;font-size:11px;color:var(--muted2);margin-top:10px;letter-spacing:0.06em">▼ ENTRANCE</div>';
