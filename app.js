@@ -562,20 +562,20 @@ function renderMap() {
 
   // M07B
   html += '<div><div class="map-section-label" style="margin-bottom:8px">M07B</div>';
-  html += bayLabels(['B1', 'B2', 'B3', 'B4'], CELL_W_C);
+  html += bayLabels(['B4', 'B3', 'B2', 'B1'], CELL_W_C);
   ['#01', '#02', '#03'].forEach(function (row) {
     html += '<div class="map-row"><div class="map-row-label">' + row + '</div>';
-    ['B1', 'B2', 'B3', 'B4'].forEach(function (col) { html += makeCell('M07' + col + row, CELL_W_C, CELL_H_C); });
+    ['B4', 'B3', 'B2', 'B1'].forEach(function (col) { html += makeCell('M07' + col + row, CELL_W_C, CELL_H_C); });
     html += '</div>';
   });
   html += '</div>';
 
   // M07A
   html += '<div><div class="map-section-label" style="margin-bottom:8px">M07A</div>';
-  html += bayLabels(['A1', 'A2', 'A3', 'A4'], CELL_W_C);
+  html += bayLabels(['A4', 'A3', 'A2', 'A1'], CELL_W_C);
   ['#01', '#02', '#03'].forEach(function (row) {
     html += '<div class="map-row"><div class="map-row-label">' + row + '</div>';
-    ['A1', 'A2', 'A3', 'A4'].forEach(function (col) { html += makeCell('M07' + col + row, CELL_W_C, CELL_H_C); });
+    ['A4', 'A3', 'A2', 'A1'].forEach(function (col) { html += makeCell('M07' + col + row, CELL_W_C, CELL_H_C); });
     html += '</div>';
   });
   html += '</div>';
