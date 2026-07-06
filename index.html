@@ -207,7 +207,6 @@
             <div class="pills">
               <button class="pill active" onclick="setInvFilter('all',this)">All</button>
               <button class="pill" onclick="setInvFilter('in',this)">In Stock</button>
-              <button class="pill" onclick="setInvFilter('low',this)">Low</button>
               <button class="pill" onclick="setInvFilter('out',this)">Out</button>
               <button class="pill" onclick="setInvFilter('sold',this)">Sold</button>
             </div>
@@ -228,10 +227,9 @@
       <div class="page" id="page-map">
         <div class="card">
           <div class="card-head">
-            <div class="card-title">M08 — Floor Plan</div>
+            <div class="card-title">Warehouse — Floor Plan</div>
             <div class="map-legend">
               <span><span class="led green"></span>Has stock</span>
-              <span><span class="led yellow"></span>Low stock</span>
               <span><span class="led gray"></span>Empty</span>
             </div>
           </div>
@@ -275,10 +273,7 @@
     <div class="form-field"><label>Product Name *</label><input id="ai-name" placeholder="e.g. ABS Offset Drain White"/></div>
     <div class="form-field"><label>Product Code / SKU *</label><input id="ai-sku" class="mono" placeholder="e.g. OSB6040Q-20W"/></div>
     <div class="form-field"><label>Barcode Number</label><input id="ai-barcode" class="mono" placeholder="e.g. 10002839"/></div>
-    <div class="form-2col">
-      <div class="form-field"><label>Unit</label><input id="ai-unit" placeholder="pcs / box…"/></div>
-      <div class="form-field"><label>Low Stock Alert At</label><input id="ai-thresh" type="number" placeholder="5"/></div>
-    </div>
+    <div class="form-field"><label>Unit</label><input id="ai-unit" placeholder="pcs / box…"/></div>
     <div class="modal-foot"><button class="btn-ghost" onclick="closeModal('modal-additem')">Cancel</button><button class="btn-primary" onclick="saveNewItem()">Save Item</button></div>
   </div>
 </div>
@@ -294,10 +289,7 @@
     <p class="modal-note">This barcode isn't registered. Fill in the details to add it and continue your workflow.</p>
     <div class="form-field"><label>Product Name *</label><input id="qa-name" placeholder="e.g. ABS Offset Drain White"/></div>
     <div class="form-field"><label>Product Code / SKU *</label><input id="qa-sku" class="mono" placeholder="e.g. OSB6040Q-20W"/></div>
-    <div class="form-2col">
-      <div class="form-field"><label>Unit</label><input id="qa-unit" value="pcs"/></div>
-      <div class="form-field"><label>Low Stock Alert</label><input id="qa-thresh" type="number" value="5"/></div>
-    </div>
+    <div class="form-field"><label>Unit</label><input id="qa-unit" value="pcs"/></div>
     <div class="modal-foot"><button class="btn-ghost" onclick="closeModal('modal-quickadd')">Cancel</button><button class="btn-primary" onclick="saveQuickAdd()">Add &amp; Continue</button></div>
   </div>
 </div>

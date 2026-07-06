@@ -3,7 +3,7 @@
 // ══════════════════════════════════════════════════════
 
 // ─── PIN AUTH ────────────────────────────────────────
-const CORRECT_PIN = '%%APP_PIN%%';;
+const CORRECT_PIN = '%%APP_PIN%%';
 const SESSION_KEY = 'wh_unlocked';
 
 function pinEnter() {
@@ -60,6 +60,20 @@ var ZONES = {
   // Add more zones here:
   M07: {
     label: 'M07',
+    aisles: {
+      A: { rows: ['1','2','3','4'], bays: ['#01','#02','#03'] },
+      B: { rows: ['1','2','3','4'], bays: ['#01','#02','#03'] }
+    }
+  },
+  M06: {
+    label: 'M06',
+    aisles: {
+      A: { rows: ['1','2','3','4'], bays: ['#01','#02','#03'] },
+      B: { rows: ['1','2','3','4'], bays: ['#01','#02','#03'] }
+    }
+  },
+  M09: {
+    label: 'M09',
     aisles: {
       A: { rows: ['1','2','3','4'], bays: ['#01','#02','#03'] },
       B: { rows: ['1','2','3','4'], bays: ['#01','#02','#03'] }
@@ -302,8 +316,6 @@ function renderStats() {
   e('stat-locs').textContent  = locs;
 }
 
-function renderDashAlerts() {}
-
 function renderDashRecentItems() {
   var el = e('dash-recent-items');
   if (!el) return;
@@ -393,7 +405,7 @@ function renderInvTable(subset) {
       var s = statusOf(item);
       var locs = (item.locations || []).map(function(l) { return '<span class="loc-chip">' + l.loc + ' (' + l.qty + ')</span>'; }).join('') || '<span style="color:var(--muted2)">—</span>';
       return '<tr>' +
-        '<td><div class="td-name">' + item.name + '</div><div class="td-sub">' + item.unit + ' · alert at ' + item.thresh + '</div></td>' +
+        '<td><div class="td-name">' + item.name + '</div><div class="td-sub">' + item.unit + '</div></td>' +
         '<td><span class="mono">' + item.sku + '</span></td>' +
         '<td><span class="mono">' + (item.barcode || '—') + '</span></td>' +
         '<td><span class="tag ' + s + '">' + statusLabel(s) + '</span></td>' +
@@ -557,30 +569,26 @@ function renderMap() {
 
   var html = '<div style="display:flex;gap:8px;flex-wrap:nowrap;align-items:flex-start;margin-bottom:20px">';
 
-  // M07 column — B on top, A on bottom
-  html += '<div style="display:flex;flex-direction:column;gap:8px">';
+  // Side-column zones (M06, M07, M09) — B on top, A on bottom
+  function sideZoneColumn(zone) {
+    var out = '<div style="display:flex;flex-direction:column;gap:8px">';
+    ['B', 'A'].forEach(function (aisle) {
+      out += '<div><div class="map-section-label" style="margin-bottom:8px">' + zone + aisle + '</div>';
+      var cols = [aisle + '4', aisle + '3', aisle + '2', aisle + '1'];
+      out += bayLabels(cols, CELL_W_C);
+      ['#01', '#02', '#03'].forEach(function (row) {
+        out += '<div class="map-row"><div class="map-row-label">' + row + '</div>';
+        cols.forEach(function (col) { out += makeCell(zone + col + row, CELL_W_C, CELL_H_C); });
+        out += '</div>';
+      });
+      out += '</div>';
+    });
+    out += '</div>';
+    return out;
+  }
 
-  // M07B
-  html += '<div><div class="map-section-label" style="margin-bottom:8px">M07B</div>';
-  html += bayLabels(['B4', 'B3', 'B2', 'B1'], CELL_W_C);
-  ['#01', '#02', '#03'].forEach(function (row) {
-    html += '<div class="map-row"><div class="map-row-label">' + row + '</div>';
-    ['B4', 'B3', 'B2', 'B1'].forEach(function (col) { html += makeCell('M07' + col + row, CELL_W_C, CELL_H_C); });
-    html += '</div>';
-  });
-  html += '</div>';
-
-  // M07A
-  html += '<div><div class="map-section-label" style="margin-bottom:8px">M07A</div>';
-  html += bayLabels(['A4', 'A3', 'A2', 'A1'], CELL_W_C);
-  ['#01', '#02', '#03'].forEach(function (row) {
-    html += '<div class="map-row"><div class="map-row-label">' + row + '</div>';
-    ['A4', 'A3', 'A2', 'A1'].forEach(function (col) { html += makeCell('M07' + col + row, CELL_W_C, CELL_H_C); });
-    html += '</div>';
-  });
-  html += '</div>';
-
-  html += '</div>'; // end M07 column
+  html += sideZoneColumn('M06');
+  html += sideZoneColumn('M07');
 
   // M08A
   html += '<div><div class="map-section-label" style="margin-bottom:8px">A</div>';
@@ -611,6 +619,9 @@ function renderMap() {
     html += '</div>';
   });
   html += '</div>';
+
+  // M09 — far right side
+  html += '<div style="margin-left:60px">' + sideZoneColumn('M09') + '</div>';
 
   html += '</div>'; // end top row
 
@@ -750,7 +761,7 @@ async function saveNewItem() {
   var sku     = val('ai-sku');
   var barcode = val('ai-barcode');
   var unit    = val('ai-unit') || 'pcs';
-  var thresh  = parseInt(val('ai-thresh')) || 5;
+  var thresh  = 5;
   if (!name || !sku) { showToast('Name and SKU required', 'err'); return; }
   if (items.find(function(i) { return i.sku.toLowerCase() === sku.toLowerCase(); })) {
     showToast('SKU already exists', 'err'); return;
@@ -761,7 +772,7 @@ async function saveNewItem() {
   var item = { id: uid(), name: name, sku: sku, barcode: barcode, unit: unit, thresh: thresh, sold: false, locations: [] };
   items.unshift(item);
   await dbSaveItem(item);
-  ['ai-name','ai-sku','ai-barcode','ai-unit','ai-thresh'].forEach(function(id) {
+  ['ai-name','ai-sku','ai-barcode','ai-unit'].forEach(function(id) {
     var el = e(id); if (el) el.value = '';
   });
   closeModal('modal-additem');
@@ -792,10 +803,7 @@ function openEditModal(id) {
     '<div class="form-field"><label>Product Name *</label><input id="edit-name" value="' + item.name + '"/></div>' +
     '<div class="form-field"><label>Product Code / SKU *</label><input id="edit-sku" class="mono" value="' + item.sku + '"/></div>' +
     '<div class="form-field"><label>Barcode</label><input id="edit-barcode" class="mono" value="' + (item.barcode || '') + '"/></div>' +
-    '<div class="form-2col">' +
-      '<div class="form-field"><label>Unit</label><input id="edit-unit" value="' + item.unit + '"/></div>' +
-      '<div class="form-field"><label>Low Stock Alert</label><input id="edit-thresh" type="number" value="' + item.thresh + '"/></div>' +
-    '</div>' +
+    '<div class="form-field"><label>Unit</label><input id="edit-unit" value="' + item.unit + '"/></div>' +
     '<div class="form-field"><label>Notes / Memo</label>' +
       '<textarea id="edit-notes" placeholder="e.g. supplier info, special handling…" style="min-height:72px">' + (item.notes || '') + '</textarea></div>' +
     '<div class="modal-foot">' +
@@ -815,7 +823,6 @@ async function saveEditItem(id) {
   var sku     = val('edit-sku');
   var barcode = val('edit-barcode');
   var unit    = val('edit-unit') || 'pcs';
-  var thresh  = parseInt(val('edit-thresh')) || 5;
   if (!name || !sku) { showToast('Name and SKU required', 'err'); return; }
   var conflict = items.find(function(i) { return i.id !== id && i.sku.toLowerCase() === sku.toLowerCase(); });
   if (conflict) { showToast('SKU already used by another item', 'err'); return; }
@@ -823,7 +830,7 @@ async function saveEditItem(id) {
   var btn = e('edit-save-btn');
   if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
   var notes = e('edit-notes') ? e('edit-notes').value.trim() : (item.notes || '');
-  item.name = name; item.sku = sku; item.barcode = barcode; item.unit = unit; item.thresh = thresh; item.notes = notes;
+  item.name = name; item.sku = sku; item.barcode = barcode; item.unit = unit; item.notes = notes;
   await dbSaveItem(item);
   _savingEdit = false;
   closeModal('modal-detail');
@@ -850,7 +857,6 @@ function openQuickAdd(scanned, returnFlow) {
   e('qa-sku').value  = isNum ? '' : scanned;
   e('qa-name').value = '';
   e('qa-unit').value = 'pcs';
-  e('qa-thresh').value = '5';
   openModal('modal-quickadd');
   setTimeout(function() { var n = e('qa-name'); if (n) n.focus(); }, 100);
 }
@@ -862,7 +868,7 @@ async function saveQuickAdd() {
   var name    = val('qa-name');
   var sku     = val('qa-sku');
   var unit    = val('qa-unit') || 'pcs';
-  var thresh  = parseInt(val('qa-thresh')) || 5;
+  var thresh  = 5;
   if (!name) { showToast('Name required', 'err'); return; }
   if (!sku)  { showToast('SKU required', 'err'); return; }
   if (items.find(function(i) { return i.sku.toLowerCase() === sku.toLowerCase(); })) {
