@@ -545,6 +545,7 @@ function renderMap() {
   if (!el) return;
 
   var CELL_W_AB = 160, CELL_W_C = 44, CELL_W_D = 170, CELL_H = 44, CELL_H_C = 80;
+  var CELL_W_M06 = 110, CELL_W_M09B = 56;
 
   function cellClass(loc) {
     var qty = items.flatMap(function (i) {
@@ -567,51 +568,67 @@ function renderMap() {
     }).join('') + '</div>';
   }
 
-  var html = '<div style="display:flex;gap:8px;flex-wrap:nowrap;align-items:flex-start;margin-bottom:20px">';
-
-  // Side-column zones (M06, M07, M09) — B on top, A on bottom
-  function sideZoneColumn(zone) {
-    var out = '<div style="display:flex;flex-direction:column;gap:8px">';
-    ['B', 'A'].forEach(function (aisle) {
-      out += '<div><div class="map-section-label" style="margin-bottom:8px">' + zone + aisle + '</div>';
-      var cols = [aisle + '4', aisle + '3', aisle + '2', aisle + '1'];
-      out += bayLabels(cols, CELL_W_C);
-      ['#01', '#02', '#03'].forEach(function (row) {
-        out += '<div class="map-row"><div class="map-row-label">' + row + '</div>';
-        cols.forEach(function (col) { out += makeCell(zone + col + row, CELL_W_C, CELL_H_C); });
-        out += '</div>';
-      });
+  // ── reusable aisle renderers ──────────────────────
+  // Wide/landscape aisle (like M08A/B): bays across the top, rows 4→1 down
+  function wideAisle(zone, aisle, bays, cellW) {
+    var out = '<div><div class="map-section-label" style="margin-bottom:8px">' + zone + aisle + '</div>';
+    out += bayLabels(bays, cellW);
+    ['4', '3', '2', '1'].forEach(function (row) {
+      out += '<div class="map-row"><div class="map-row-label">' + aisle + row + '</div>';
+      bays.forEach(function (bay) { out += makeCell(zone + aisle + row + bay, cellW, CELL_H); });
       out += '</div>';
     });
     out += '</div>';
     return out;
   }
 
-  html += sideZoneColumn('M06');
+  // Portrait/tall aisle (like M08C): columns 4→1 across, bay rows down
+  function portraitAisle(zone, aisle, rows) {
+    var out = '<div><div class="map-section-label" style="margin-bottom:8px">' + zone + aisle + '</div>';
+    var cols = [aisle + '4', aisle + '3', aisle + '2', aisle + '1'];
+    out += bayLabels(cols, CELL_W_C);
+    rows.forEach(function (row) {
+      out += '<div class="map-row"><div class="map-row-label">' + row + '</div>';
+      cols.forEach(function (col) { out += makeCell(zone + col + row, CELL_W_C, CELL_H_C); });
+      out += '</div>';
+    });
+    out += '</div>';
+    return out;
+  }
+
+  // Two-aisle portrait column (B on top, A on bottom) — used by M07
+  function sideZoneColumn(zone) {
+    return '<div style="display:flex;flex-direction:column;gap:8px">' +
+      portraitAisle(zone, 'B', ['#01', '#02', '#03']) +
+      portraitAisle(zone, 'A', ['#01', '#02', '#03']) +
+      '</div>';
+  }
+
+  var html = '';
+
+  // ===== BACK ROW (behind M08): M06A far-left · M06B far-right =====
+  html += '<div style="display:flex;justify-content:space-between;gap:40px;max-width:940px;margin-bottom:28px">';
+  html += wideAisle('M06', 'A', ['#01', '#02', '#03'], CELL_W_M06);
+  html += wideAisle('M06', 'B', ['#01', '#02', '#03'], CELL_W_M06);
+  html += '</div>';
+
+  // ===== MAIN ROW =====
+  html += '<div style="display:flex;gap:8px;flex-wrap:nowrap;align-items:flex-start;margin-bottom:20px">';
+
+  // M07 (portrait column)
   html += sideZoneColumn('M07');
 
-  // M08A
-  html += '<div><div class="map-section-label" style="margin-bottom:8px">A</div>';
-  html += bayLabels(['#01', '#02'], CELL_W_AB);
-  ['4', '3', '2', '1'].forEach(function (row) {
-    html += '<div class="map-row"><div class="map-row-label">A' + row + '</div>';
-    ['#01', '#02'].forEach(function (bay) { html += makeCell('M08A' + row + bay, CELL_W_AB, CELL_H); });
-    html += '</div>';
-  });
-  html += '</div>';
+  // M08A / M08B (wide)
+  html += wideAisle('M08', 'A', ['#01', '#02'], CELL_W_AB);
+  html += wideAisle('M08', 'B', ['#01', '#02'], CELL_W_AB);
 
-  // M08B
-  html += '<div><div class="map-section-label" style="margin-bottom:8px">B</div>';
-  html += bayLabels(['#01', '#02'], CELL_W_AB);
-  ['4', '3', '2', '1'].forEach(function (row) {
-    html += '<div class="map-row"><div class="map-row-label">B' + row + '</div>';
-    ['#01', '#02'].forEach(function (bay) { html += makeCell('M08B' + row + bay, CELL_W_AB, CELL_H); });
-    html += '</div>';
-  });
-  html += '</div>';
+  // M08C + M09 group, bottom-aligned:
+  //          M09B
+  //   M08C   M09A
+  html += '<div style="margin-left:60px;align-self:center;display:flex;gap:20px;align-items:flex-end">';
 
-  // M08C
-  html += '<div style="margin-left:60px;align-self:center"><div class="map-section-label" style="margin-bottom:8px">C <span style="font-size:11px;font-weight:400;color:var(--muted)">(side)</span></div>';
+  // M08C (portrait, columns C1..C4, 4 bay rows)
+  html += '<div><div class="map-section-label" style="margin-bottom:8px">C <span style="font-size:11px;font-weight:400;color:var(--muted)">(side)</span></div>';
   html += bayLabels(['C1', 'C2', 'C3', 'C4'], CELL_W_C);
   ['#01', '#02', '#03', '#04'].forEach(function (row) {
     html += '<div class="map-row"><div class="map-row-label">' + row + '</div>';
@@ -620,10 +637,15 @@ function renderMap() {
   });
   html += '</div>';
 
-  // M09 — far right side
-  html += '<div style="margin-left:60px">' + sideZoneColumn('M09') + '</div>';
+  // M09 stack: M09B (wide) on top, M09A (portrait) below
+  html += '<div style="display:flex;flex-direction:column;gap:14px;align-items:center">';
+  html += wideAisle('M09', 'B', ['#01', '#02', '#03'], CELL_W_M09B);
+  html += portraitAisle('M09', 'A', ['#01', '#02', '#03']);
+  html += '</div>';
 
-  html += '</div>'; // end top row
+  html += '</div>'; // end C + M09 group
+
+  html += '</div>'; // end main row
 
   // Walking aisle
   html += '<div class="map-aisle-gap"><div class="map-aisle-gap-line"></div><div class="map-aisle-gap-text">— walking aisle —</div><div class="map-aisle-gap-line"></div></div>';
