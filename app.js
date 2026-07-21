@@ -621,7 +621,7 @@ function renderMap() {
   // M09B's exact rendered height, so M08C's grid lines up with M09A's grid:
   //          M09B
   //   M08C   M09A
-  html += '<div style="margin-left:60px;align-self:flex-start;display:flex;gap:2px;align-items:flex-start">';
+  html += '<div style="margin-left:60px;margin-top:10px;align-self:flex-start;display:flex;gap:0px;align-items:flex-start">';
 
   // M08C column: hidden ghost of M09B on top (for spacing only, not clickable), then the real M08C
   html += '<div style="display:flex;flex-direction:column;gap:14px;align-items:center">';
