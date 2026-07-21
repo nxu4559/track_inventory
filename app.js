@@ -68,8 +68,8 @@ var ZONES = {
   M06: {
     label: 'M06',
     aisles: {
-      A: { rows: ['1','2','3','4'], bays: ['#01','#02','#03'] },
-      B: { rows: ['1','2','3','4'], bays: ['#01','#02','#03'] }
+      A: { rows: ['1','2','3','4'], bays: ['#01','#02'] },
+      B: { rows: ['1','2','3','4'], bays: ['#01','#02'] }
     }
   },
   M09: {
@@ -545,7 +545,7 @@ function renderMap() {
   if (!el) return;
 
   var CELL_W_AB = 160, CELL_W_C = 44, CELL_W_D = 170, CELL_H = 44, CELL_H_C = 80;
-  var CELL_W_M06 = 110, CELL_W_M09B = CELL_W_AB;
+  var CELL_W_M09B = CELL_W_AB;
 
   function cellClass(loc) {
     var qty = items.flatMap(function (i) {
@@ -634,7 +634,7 @@ function renderMap() {
   // M09 stack: M09B (wide) on top, M09A (portrait) below
   html += '<div style="display:flex;flex-direction:column;gap:14px;align-items:center">';
   html += wideAisle('M09', 'B', ['#01', '#02', '#03'], CELL_W_M09B);
-  html += portraitAisle('M09', 'A', ['#01', '#02', '#03']);
+  html += wideAisle('M09', 'A', ['#01', '#02', '#03'], CELL_W_AB);
   html += '</div>';
 
   html += '</div>'; // end C + M09 group
@@ -655,10 +655,10 @@ function renderMap() {
   html += '<div style="text-align:center;font-size:11px;color:var(--muted2);margin-top:10px;letter-spacing:0.06em">▼ ENTRANCE</div>';
   html += '</div>';
 
-  // ===== BOTTOM ROW: M06A far-left · M06B far-right =====
-  html += '<div style="display:flex;justify-content:space-between;gap:40px;max-width:940px;margin-top:32px">';
-  html += wideAisle('M06', 'A', ['#01', '#02', '#03'], CELL_W_M06);
-  html += wideAisle('M06', 'B', ['#01', '#02', '#03'], CELL_W_M06);
+  // ===== BOTTOM ROW: M06A + M06B, tight layout matching M08A/B exactly =====
+  html += '<div style="display:flex;gap:8px;margin-top:32px">';
+  html += wideAisle('M06', 'A', ['#01', '#02'], CELL_W_AB);
+  html += wideAisle('M06', 'B', ['#01', '#02'], CELL_W_AB);
   html += '</div>';
 
   el.innerHTML = html;
