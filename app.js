@@ -76,7 +76,7 @@ var ZONES = {
     label: 'M09',
     aisles: {
       A: { rows: ['1','2','3','4'], bays: ['#01','#02','#03','#04'] },
-      B: { rows: ['2','1'], bays: ['#01','#02','#03'] }
+      B: { rows: ['2','1'], bays: ['#01','#02'] }
     }
   }
 };
@@ -620,7 +620,7 @@ function renderMap() {
   // M08C + M09 group, bottom-aligned:
   //          M09B
   //   M08C   M09A
-  html += '<div style="margin-left:60px;align-self:flex-start;display:flex;gap:8px;align-items:flex-start">';
+  html += '<div style="margin-left:60px;align-self:flex-start;display:flex;gap:2px;align-items:center">';
 
   // M08C (portrait, columns C1..C4, 4 bay rows)
   html += '<div><div class="map-section-label" style="margin-bottom:8px">C <span style="font-size:11px;font-weight:400;color:var(--muted)">(side)</span></div>';
@@ -634,7 +634,7 @@ function renderMap() {
 
   // M09 stack: M09B (wide) on top, M09A (portrait) below
   html += '<div style="display:flex;flex-direction:column;gap:14px;align-items:center">';
-  html += wideAisle('M09', 'B', ['#01', '#02', '#03'], CELL_W_M09B, ['2', '1']);
+  html += wideAisle('M09', 'B', ['#01', '#02'], CELL_W_M09B, ['2', '1']);
   html += portraitAisle('M09', 'A', ['#01', '#02', '#03', '#04']);
   html += '</div>';
 
