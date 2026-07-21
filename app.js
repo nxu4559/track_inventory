@@ -617,12 +617,15 @@ function renderMap() {
   html += wideAisle('M08', 'A', ['#01', '#02'], CELL_W_AB);
   html += wideAisle('M08', 'B', ['#01', '#02'], CELL_W_AB);
 
-  // M08C + M09 group, bottom-aligned:
+  // M08C + M09 group — M08C is pushed down by an invisible spacer matching
+  // M09B's exact rendered height, so M08C's grid lines up with M09A's grid:
   //          M09B
   //   M08C   M09A
-  html += '<div style="margin-left:60px;align-self:flex-start;display:flex;gap:2px;align-items:center">';
+  html += '<div style="margin-left:60px;align-self:flex-start;display:flex;gap:2px;align-items:flex-start">';
 
-  // M08C (portrait, columns C1..C4, 4 bay rows)
+  // M08C column: hidden ghost of M09B on top (for spacing only, not clickable), then the real M08C
+  html += '<div style="display:flex;flex-direction:column;gap:14px;align-items:center">';
+  html += '<div style="visibility:hidden;pointer-events:none">' + wideAisle('M09', 'B', ['#01', '#02'], CELL_W_M09B, ['2', '1']) + '</div>';
   html += '<div><div class="map-section-label" style="margin-bottom:8px">C <span style="font-size:11px;font-weight:400;color:var(--muted)">(side)</span></div>';
   html += bayLabels(['C1', 'C2', 'C3', 'C4'], CELL_W_C);
   ['#01', '#02', '#03', '#04'].forEach(function (row) {
@@ -631,6 +634,7 @@ function renderMap() {
     html += '</div>';
   });
   html += '</div>';
+  html += '</div>'; // end M08C column
 
   // M09 stack: M09B (wide) on top, M09A (portrait) below
   html += '<div style="display:flex;flex-direction:column;gap:14px;align-items:center">';
