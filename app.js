@@ -634,7 +634,7 @@ function renderMap() {
   // M09 stack: M09B (wide) on top, M09A (portrait) below
   html += '<div style="display:flex;flex-direction:column;gap:14px;align-items:center">';
   html += wideAisle('M09', 'B', ['#01', '#02', '#03'], CELL_W_M09B);
-  html += wideAisle('M09', 'A', ['#01', '#02', '#03'], CELL_W_AB);
+  html += portraitAisle('M09', 'A', ['#01', '#02', '#03']);
   html += '</div>';
 
   html += '</div>'; // end C + M09 group
@@ -655,8 +655,8 @@ function renderMap() {
   html += '<div style="text-align:center;font-size:11px;color:var(--muted2);margin-top:10px;letter-spacing:0.06em">▼ ENTRANCE</div>';
   html += '</div>';
 
-  // ===== BOTTOM ROW: M06A + M06B, tight layout matching M08A/B exactly =====
-  html += '<div style="display:flex;gap:8px;margin-top:32px">';
+  // ===== BOTTOM ROW: M06A + M06B, tight layout matching M08A/B exactly, aligned under M08A =====
+  html += '<div style="display:flex;gap:8px;margin-top:32px;margin-left:210px">';
   html += wideAisle('M06', 'A', ['#01', '#02'], CELL_W_AB);
   html += wideAisle('M06', 'B', ['#01', '#02'], CELL_W_AB);
   html += '</div>';
