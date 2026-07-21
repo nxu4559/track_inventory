@@ -545,7 +545,7 @@ function renderMap() {
   if (!el) return;
 
   var CELL_W_AB = 160, CELL_W_C = 44, CELL_W_D = 170, CELL_H = 44, CELL_H_C = 80;
-  var CELL_W_M06 = 110, CELL_W_M09B = 56;
+  var CELL_W_M06 = 110, CELL_W_M09B = CELL_W_AB;
 
   function cellClass(loc) {
     var qty = items.flatMap(function (i) {
@@ -606,12 +606,6 @@ function renderMap() {
 
   var html = '';
 
-  // ===== BACK ROW (behind M08): M06A far-left · M06B far-right =====
-  html += '<div style="display:flex;justify-content:space-between;gap:40px;max-width:940px;margin-bottom:28px">';
-  html += wideAisle('M06', 'A', ['#01', '#02', '#03'], CELL_W_M06);
-  html += wideAisle('M06', 'B', ['#01', '#02', '#03'], CELL_W_M06);
-  html += '</div>';
-
   // ===== MAIN ROW =====
   html += '<div style="display:flex;gap:8px;flex-wrap:nowrap;align-items:flex-start;margin-bottom:20px">';
 
@@ -659,6 +653,12 @@ function renderMap() {
     html += '</div>';
   });
   html += '<div style="text-align:center;font-size:11px;color:var(--muted2);margin-top:10px;letter-spacing:0.06em">▼ ENTRANCE</div>';
+  html += '</div>';
+
+  // ===== BOTTOM ROW: M06A far-left · M06B far-right =====
+  html += '<div style="display:flex;justify-content:space-between;gap:40px;max-width:940px;margin-top:32px">';
+  html += wideAisle('M06', 'A', ['#01', '#02', '#03'], CELL_W_M06);
+  html += wideAisle('M06', 'B', ['#01', '#02', '#03'], CELL_W_M06);
   html += '</div>';
 
   el.innerHTML = html;
