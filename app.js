@@ -75,8 +75,8 @@ var ZONES = {
   M09: {
     label: 'M09',
     aisles: {
-      A: { rows: ['1','2','3','4'], bays: ['#01','#02','#03'] },
-      B: { rows: ['1','2','3','4'], bays: ['#01','#02','#03'] }
+      A: { rows: ['1','2','3','4'], bays: ['#01','#02','#03','#04'] },
+      B: { rows: ['2','1'], bays: ['#01','#02','#03'] }
     }
   }
 };
@@ -570,10 +570,11 @@ function renderMap() {
 
   // ── reusable aisle renderers ──────────────────────
   // Wide/landscape aisle (like M08A/B): bays across the top, rows 4→1 down
-  function wideAisle(zone, aisle, bays, cellW) {
+  function wideAisle(zone, aisle, bays, cellW, rowDigits) {
+    rowDigits = rowDigits || ['4', '3', '2', '1'];
     var out = '<div><div class="map-section-label" style="margin-bottom:8px">' + zone + aisle + '</div>';
     out += bayLabels(bays, cellW);
-    ['4', '3', '2', '1'].forEach(function (row) {
+    rowDigits.forEach(function (row) {
       out += '<div class="map-row"><div class="map-row-label">' + aisle + row + '</div>';
       bays.forEach(function (bay) { out += makeCell(zone + aisle + row + bay, cellW, CELL_H); });
       out += '</div>';
@@ -619,7 +620,7 @@ function renderMap() {
   // M08C + M09 group, bottom-aligned:
   //          M09B
   //   M08C   M09A
-  html += '<div style="margin-left:60px;align-self:center;display:flex;gap:20px;align-items:flex-end">';
+  html += '<div style="margin-left:60px;align-self:flex-start;display:flex;gap:8px;align-items:flex-start">';
 
   // M08C (portrait, columns C1..C4, 4 bay rows)
   html += '<div><div class="map-section-label" style="margin-bottom:8px">C <span style="font-size:11px;font-weight:400;color:var(--muted)">(side)</span></div>';
@@ -633,8 +634,8 @@ function renderMap() {
 
   // M09 stack: M09B (wide) on top, M09A (portrait) below
   html += '<div style="display:flex;flex-direction:column;gap:14px;align-items:center">';
-  html += wideAisle('M09', 'B', ['#01', '#02', '#03'], CELL_W_M09B);
-  html += portraitAisle('M09', 'A', ['#01', '#02', '#03']);
+  html += wideAisle('M09', 'B', ['#01', '#02', '#03'], CELL_W_M09B, ['2', '1']);
+  html += portraitAisle('M09', 'A', ['#01', '#02', '#03', '#04']);
   html += '</div>';
 
   html += '</div>'; // end C + M09 group
@@ -642,8 +643,6 @@ function renderMap() {
   html += '</div>'; // end main row
 
   // Walking aisle
-  html += '<div class="map-aisle-gap"><div class="map-aisle-gap-line"></div><div class="map-aisle-gap-text">— walking aisle —</div><div class="map-aisle-gap-line"></div></div>';
-
   // 08MD
   html += '<div style="margin-left:210px"><div class="map-section-label" style="margin-bottom:8px">D</div>';
   html += bayLabels(['#01', '#02', '#03', '#04'], CELL_W_D);
@@ -656,7 +655,7 @@ function renderMap() {
   html += '</div>';
 
   // ===== BOTTOM ROW: M06A + M06B, tight layout matching M08A/B exactly, aligned under M08A =====
-  html += '<div style="display:flex;gap:8px;margin-top:32px;margin-left:210px">';
+  html += '<div style="display:flex;gap:8px;margin-top:12px;margin-left:210px">';
   html += wideAisle('M06', 'A', ['#01', '#02'], CELL_W_AB);
   html += wideAisle('M06', 'B', ['#01', '#02'], CELL_W_AB);
   html += '</div>';
