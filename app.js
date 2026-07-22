@@ -76,7 +76,7 @@ var ZONES = {
     label: 'M09',
     aisles: {
       A: { rows: ['1','2','3','4'], bays: ['#01','#02','#03','#04'] },
-      B: { rows: ['2','1'], bays: ['#01','#02'] }
+      B: { rows: ['4','3','2','1'], bays: ['#01','#02'] }
     }
   }
 };
@@ -617,16 +617,19 @@ function renderMap() {
   html += wideAisle('M08', 'A', ['#01', '#02'], CELL_W_AB);
   html += wideAisle('M08', 'B', ['#01', '#02'], CELL_W_AB);
 
-  // M08C + M09 group — M08C is pushed down by an invisible spacer matching
-  // M09B's exact rendered height, so M08C's grid lines up with M09A's grid:
-  //          M09B
-  //   M08C   M09A
-  html += '<div style="margin-left:30px;margin-top:30px;align-self:flex-start;display:flex;gap:10px;align-items:flex-start">';
+  // Grid layout: M09B sits in its own top row, aligned with M08A/B's height
+  // (independent of the C/M09A group below). M08C and M09A share the row
+  // beneath it, so they naturally line up with each other with no spacer hack.
+  //   M09B          <- top-aligned with M08A/B
+  //   M08C   M09A   <- pushed down together, naturally same height
+  html += '<div style="margin-left:10px;align-self:flex-start;display:grid;grid-template-columns:auto auto;column-gap:10px;row-gap:50px;align-items:start">';
 
-  // M08C column: hidden ghost of M09B on top (for spacing only, not clickable), then the real M08C
-  html += '<div style="display:flex;flex-direction:column;gap:14px;align-items:center">';
-  html += '<div style="visibility:hidden;pointer-events:none">' + wideAisle('M09', 'B', ['#01', '#02'], CELL_W_M09B, ['2', '1']) + '</div>';
-  html += '<div><div class="map-section-label" style="margin-bottom:8px">C <span style="font-size:11px;font-weight:400;color:var(--muted)">(side)</span></div>';
+  // M09B — row 1, column 2 (directly above where M09A sits in row 2)
+  html += '<div style="grid-column:2;grid-row:1">' + wideAisle('M09', 'B', ['#01', '#02'], CELL_W_M09B, ['4', '3', '2', '1']) + '</div>';
+
+  // M08C — row 2, column 1
+  html += '<div style="grid-column:1;grid-row:2">';
+  html += '<div class="map-section-label" style="margin-bottom:8px">C <span style="font-size:11px;font-weight:400;color:var(--muted)">(side)</span></div>';
   html += bayLabels(['C1', 'C2', 'C3', 'C4'], CELL_W_C);
   ['#01', '#02', '#03', '#04'].forEach(function (row) {
     html += '<div class="map-row"><div class="map-row-label">' + row + '</div>';
@@ -634,15 +637,11 @@ function renderMap() {
     html += '</div>';
   });
   html += '</div>';
-  html += '</div>'; // end M08C column
 
-  // M09 stack: M09B (wide) on top, M09A (portrait) below
-  html += '<div style="display:flex;flex-direction:column;gap:14px;align-items:center">';
-  html += wideAisle('M09', 'B', ['#01', '#02'], CELL_W_M09B, ['2', '1']);
-  html += portraitAisle('M09', 'A', ['#01', '#02', '#03', '#04']);
-  html += '</div>';
+  // M09A — row 2, column 2 (same row as M08C, so they auto-align)
+  html += '<div style="grid-column:2;grid-row:2">' + portraitAisle('M09', 'A', ['#01', '#02', '#03', '#04']) + '</div>';
 
-  html += '</div>'; // end C + M09 group
+  html += '</div>'; // end grid group
 
   html += '</div>'; // end main row
 
